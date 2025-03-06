@@ -1,0 +1,22 @@
+{
+    "sourceFile": "components/DatabaseSeeder.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741292862233,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741295021479,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,9 @@\n 'use client';\n \n import { useEffect, useState } from 'react';\n import { seedDatabase, isDatabaseSeeded } from '@/lib/services/seed-service';\n+import { runDataMigrations } from '@/lib/services/data-migration';\n \n export function DatabaseSeeder() {\n   const [seeding, setSeeding] = useState(false);\n   const [seeded, setSeeded] = useState(true); // Assume seeded until checked\n@@ -21,8 +22,13 @@\n           } else {\n             console.log('Database already seeded, skipping seed process');\n           }\n           \n+          // Run data migrations regardless of whether we seeded\n+          console.log('Running data migrations...');\n+          await runDataMigrations();\n+          console.log('Data migrations completed successfully!');\n+          \n           setSeeded(true);\n         } catch (error) {\n           console.error('Error initializing database:', error);\n         } finally {\n"
+                }
+            ],
+            "date": 1741292862233,
+            "name": "Commit-0",
+            "content": "'use client';\n\nimport { useEffect, useState } from 'react';\nimport { seedDatabase, isDatabaseSeeded } from '@/lib/services/seed-service';\n\nexport function DatabaseSeeder() {\n  const [seeding, setSeeding] = useState(false);\n  const [seeded, setSeeded] = useState(true); // Assume seeded until checked\n  \n  useEffect(() => {\n    async function checkAndSeedDatabase() {\n      if (process.env.NODE_ENV === 'development') {\n        try {\n          setSeeding(true);\n          const isSeeded = await isDatabaseSeeded();\n          \n          if (!isSeeded) {\n            console.log('Database not seeded, seeding now...');\n            await seedDatabase();\n            console.log('Database seeding completed successfully!');\n          } else {\n            console.log('Database already seeded, skipping seed process');\n          }\n          \n          setSeeded(true);\n        } catch (error) {\n          console.error('Error initializing database:', error);\n        } finally {\n          setSeeding(false);\n        }\n      }\n    }\n    \n    checkAndSeedDatabase();\n  }, []);\n  \n  // This component doesn't render anything visible\n  return null;\n} "
+        }
+    ]
+}

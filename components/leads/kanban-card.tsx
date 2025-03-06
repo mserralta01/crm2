@@ -60,6 +60,11 @@ export function KanbanCard({ id, lead, columnColor }: KanbanCardProps) {
     ) {
       return;
     }
+    
+    // Add console log for debugging
+    console.log('Card clicked, navigating to:', `/dashboard/leads/${lead.id}`);
+    
+    // Navigate to lead detail page
     router.push(`/dashboard/leads/${lead.id}`);
   };
 
@@ -100,7 +105,9 @@ export function KanbanCard({ id, lead, columnColor }: KanbanCardProps) {
             <DropdownMenuItem onClick={() => router.push(`/dashboard/leads/${lead.id}`)}>
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem>Edit Lead</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push(`/dashboard/leads/${lead.id}?edit=true`)}>
+              Edit Lead
+            </DropdownMenuItem>
             <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

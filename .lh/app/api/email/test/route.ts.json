@@ -1,0 +1,18 @@
+{
+    "sourceFile": "app/api/email/test/route.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741294406488,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741294406488,
+            "name": "Commit-0",
+            "content": "import { NextRequest, NextResponse } from 'next/server';\nimport { auth } from '@/lib/firebase';\nimport { sendEmail } from '@/lib/services/email';\n\nexport async function POST(request: NextRequest) {\n  try {\n    // Get the current user\n    const user = auth.currentUser;\n    \n    if (!user) {\n      return NextResponse.json(\n        { success: false, message: \"Authentication required\" },\n        { status: 401 }\n      );\n    }\n    \n    // Parse request body\n    const requestData = await request.json();\n    const { testEmail } = requestData;\n    \n    if (!testEmail) {\n      return NextResponse.json(\n        { success: false, message: \"Test email address is required\" },\n        { status: 400 }\n      );\n    }\n\n    // Send a test email\n    const result = await sendEmail({\n      to: testEmail,\n      from: 'test@yourdomain.com', // Replace with your verified sender\n      subject: 'SendGrid Test Email',\n      text: 'This is a test email to verify your SendGrid integration is working correctly.',\n      html: '<div><h1>SendGrid Test</h1><p>This is a test email to verify your SendGrid integration is working correctly.</p></div>'\n    }, user.uid);\n\n    if (result.success) {\n      return NextResponse.json({ success: true, message: \"Test email sent successfully\" });\n    } else {\n      return NextResponse.json(\n        { success: false, message: result.message },\n        { status: 500 }\n      );\n    }\n  } catch (error) {\n    console.error(\"Error in test email API:\", error);\n    return NextResponse.json(\n      { success: false, message: \"Failed to send test email\" },\n      { status: 500 }\n    );\n  }\n} "
+        }
+    ]
+}

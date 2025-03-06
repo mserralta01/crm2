@@ -1,0 +1,18 @@
+{
+    "sourceFile": "app/api/leads/[id]/activities/route.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741292507096,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741292507096,
+            "name": "Commit-0",
+            "content": "import { NextRequest, NextResponse } from 'next/server';\nimport { addActivityToLead } from '@/lib/services/leads-service';\n\n// POST /api/leads/[id]/activities - Add an activity to a lead\nexport async function POST(\n  request: NextRequest,\n  { params }: { params: { id: string } }\n): Promise<NextResponse> {\n  try {\n    const data = await request.json();\n    \n    // Validate the activity type\n    const validTypes = ['calls', 'notes', 'emails', 'meetings', 'documents'];\n    if (!data.type || !validTypes.includes(data.type)) {\n      return NextResponse.json(\n        { error: 'Invalid activity type. Must be one of: ' + validTypes.join(', ') },\n        { status: 400 }\n      );\n    }\n    \n    // Validate required fields\n    if (!data.title) {\n      return NextResponse.json(\n        { error: 'Activity title is required' },\n        { status: 400 }\n      );\n    }\n    \n    await addActivityToLead(params.id, data.type, {\n      title: data.title,\n      description: data.description || '',\n      status: data.status,\n      duration: data.duration,\n      attachments: data.attachments || []\n    });\n    \n    return NextResponse.json({ message: 'Activity added successfully' });\n  } catch (error: any) {\n    console.error('Error adding activity:', error);\n    return NextResponse.json(\n      { error: 'Failed to add activity', message: error.message },\n      { status: 500 }\n    );\n  }\n} "
+        }
+    ]
+}

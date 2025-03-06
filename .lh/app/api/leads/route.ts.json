@@ -1,0 +1,18 @@
+{
+    "sourceFile": "app/api/leads/route.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741292484196,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741292484196,
+            "name": "Commit-0",
+            "content": "import { NextRequest, NextResponse } from 'next/server';\nimport { getLeads, createLead } from '@/lib/services/leads-service';\n\n// GET /api/leads - Get all leads\nexport async function GET(request: NextRequest): Promise<NextResponse> {\n  try {\n    const leads = await getLeads();\n    return NextResponse.json(leads);\n  } catch (error: any) {\n    console.error('Error fetching leads:', error);\n    return NextResponse.json(\n      { error: 'Failed to fetch leads', message: error.message },\n      { status: 500 }\n    );\n  }\n}\n\n// POST /api/leads - Create a new lead\nexport async function POST(request: NextRequest): Promise<NextResponse> {\n  try {\n    const data = await request.json();\n    \n    // Simple validation\n    if (!data.name || !data.company || !data.email) {\n      return NextResponse.json(\n        { error: 'Missing required fields' },\n        { status: 400 }\n      );\n    }\n    \n    const leadId = await createLead(data);\n    \n    return NextResponse.json(\n      { message: 'Lead created successfully', id: leadId },\n      { status: 201 }\n    );\n  } catch (error: any) {\n    console.error('Error creating lead:', error);\n    return NextResponse.json(\n      { error: 'Failed to create lead', message: error.message },\n      { status: 500 }\n    );\n  }\n} "
+        }
+    ]
+}

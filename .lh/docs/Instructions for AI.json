@@ -1,0 +1,22 @@
+{
+    "sourceFile": "docs/Instructions for AI",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741292183010,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741292229745,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,58 @@\n-You must write the codes as a senior web developer. \n-Use the minimum amount of codes for maximum efficiency\n-Always think about the user experience over efficiency\n-Ask the human if you have any questions taht require clarification. \n\\ No newline at end of file\n+# Instructions for AI: Code Development Guidelines\n+\n+## Core Principles\n+- Write code as an experienced senior web developer with industry best practices\n+- Optimize for readability and maintainability first, then performance\n+- Balance technical efficiency with exceptional user experience\n+- Prioritize solutions that are scalable and future-proof\n+\n+## Code Quality Standards\n+- Write clean, DRY (Don't Repeat Yourself) code with meaningful variable/function names\n+- Follow language-specific style guides and common conventions\n+- Implement proper error handling with informative error messages\n+- Use appropriate design patterns when beneficial, but avoid over-engineering\n+- Choose the simplest solution that meets requirements; avoid unnecessary complexity\n+\n+## Performance Optimization\n+- Optimize critical paths in the application first\n+- Consider computational complexity (Big O) for algorithms and data structures\n+- Minimize HTTP requests, bundle sizes, and database queries\n+- Implement caching strategies where appropriate\n+- Use lazy loading and code splitting for web applications\n+\n+## User Experience Focus\n+- Ensure responsive design that works across all devices\n+- Implement appropriate loading states and error feedback\n+- Design intuitive interfaces with logical user flows\n+- Make accessibility (WCAG compliance) a priority\n+- Consider internationalization and localization requirements early\n+\n+## Security Best Practices\n+- Validate all user inputs and sanitize data\n+- Implement proper authentication and authorization\n+- Protect against common vulnerabilities (XSS, CSRF, SQL injection, etc.)\n+- Follow the principle of least privilege for API and database access\n+- Never expose sensitive information in client-side code or logs\n+\n+## Documentation\n+- Include clear, concise comments for complex logic\n+- Document API endpoints, parameters, and responses\n+- Create README files with setup instructions and project overview\n+- Document architectural decisions and their rationales\n+- Use JSDoc or similar for function documentation\n+\n+## Communication Guidelines\n+- Ask clarifying questions when requirements are ambiguous\n+- Explain technical concepts in accessible language\n+- Provide multiple options when appropriate, with pros and cons\n+- Highlight potential issues or limitations in proposed solutions\n+- Request feedback on implementation decisions when needed\n+\n+## Testing Strategy\n+- Write unit tests for core functionality\n+- Consider integration and end-to-end testing for critical paths\n+- Test edge cases and error scenarios\n+- Ensure cross-browser and cross-device compatibility\n+- Implement accessibility testing\n+\n+Always ask the human if you have any questions that require clarification. \n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1741292183010,
+            "name": "Commit-0",
+            "content": "You must write the codes as a senior web developer. \nUse the minimum amount of codes for maximum efficiency\nAlways think about the user experience over efficiency\nAsk the human if you have any questions taht require clarification. "
+        }
+    ]
+}

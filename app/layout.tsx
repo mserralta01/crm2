@@ -2,12 +2,14 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
+import { DatabaseSeeder } from "@/components/DatabaseSeeder";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SalesPro CRM - The Most Intuitive CRM Ever Built',
-  description: 'Transform your leads into revenue with the most intuitive CRM ever built. Stop losing deals in complicated systems and close more deals with less effort.',
+  title: 'SalesPro CRM - Modern Sales Management',
+  description: 'Streamline your sales process with our modern CRM solution',
   keywords: 'CRM, sales, lead management, pipeline management, sales automation',
 };
 
@@ -25,7 +27,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <DatabaseSeeder />
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

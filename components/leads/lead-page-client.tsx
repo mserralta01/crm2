@@ -1,6 +1,7 @@
 "use client";
 
-import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LeadProfile } from '@/components/leads/lead-profile';
@@ -10,8 +11,10 @@ import { leads } from '@/data/leads';
 
 export function LeadPageClient() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const leadId = params.id as string;
-  const lead = leads.find(l => l.id.toString() === leadId);
+  const isEditMode = searchParams.get('edit') === 'true';
+  const [lead, setLead] = useState(leads.find(l => l.id.toString() === leadId));
 
   if (!lead) {
     return <div>Lead not found</div>;
@@ -26,7 +29,7 @@ export function LeadPageClient() {
       >
         {/* Left Column - Lead Profile */}
         <div className="col-span-3">
-          <LeadProfile lead={lead} />
+          <LeadProfile lead={lead} isEditMode={isEditMode} />
         </div>
 
         {/* Right Column - Activities */}

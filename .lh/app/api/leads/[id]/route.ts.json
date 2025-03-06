@@ -1,0 +1,18 @@
+{
+    "sourceFile": "app/api/leads/[id]/route.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741292496077,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741292496077,
+            "name": "Commit-0",
+            "content": "import { NextRequest, NextResponse } from 'next/server';\nimport { getLeadById, updateLead, deleteLead } from '@/lib/services/leads-service';\n\n// GET /api/leads/[id] - Get a lead by ID\nexport async function GET(\n  request: NextRequest,\n  { params }: { params: { id: string } }\n): Promise<NextResponse> {\n  try {\n    const lead = await getLeadById(params.id);\n    \n    if (!lead) {\n      return NextResponse.json(\n        { error: 'Lead not found' },\n        { status: 404 }\n      );\n    }\n    \n    return NextResponse.json(lead);\n  } catch (error: any) {\n    console.error('Error fetching lead:', error);\n    return NextResponse.json(\n      { error: 'Failed to fetch lead', message: error.message },\n      { status: 500 }\n    );\n  }\n}\n\n// PATCH /api/leads/[id] - Update a lead\nexport async function PATCH(\n  request: NextRequest,\n  { params }: { params: { id: string } }\n): Promise<NextResponse> {\n  try {\n    const data = await request.json();\n    await updateLead(params.id, data);\n    \n    return NextResponse.json({ message: 'Lead updated successfully' });\n  } catch (error: any) {\n    console.error('Error updating lead:', error);\n    return NextResponse.json(\n      { error: 'Failed to update lead', message: error.message },\n      { status: 500 }\n    );\n  }\n}\n\n// DELETE /api/leads/[id] - Delete a lead\nexport async function DELETE(\n  request: NextRequest,\n  { params }: { params: { id: string } }\n): Promise<NextResponse> {\n  try {\n    await deleteLead(params.id);\n    \n    return NextResponse.json({ message: 'Lead deleted successfully' });\n  } catch (error: any) {\n    console.error('Error deleting lead:', error);\n    return NextResponse.json(\n      { error: 'Failed to delete lead', message: error.message },\n      { status: 500 }\n    );\n  }\n} "
+        }
+    ]
+}

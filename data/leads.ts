@@ -6,6 +6,7 @@ export interface Lead {
   phone: string;
   status: string;
   value: string;
+  position: number;
   createdAt: string;
   lastActivity: string;
   activities: {
@@ -37,6 +38,7 @@ export const leads: Lead[] = [
     phone: "+1 (555) 123-4567",
     status: "New",
     value: "$5,000",
+    position: 1,
     createdAt: "2024-03-15T10:00:00Z",
     lastActivity: "2024-03-20T15:30:00Z",
     activities: {
@@ -100,6 +102,7 @@ export const leads: Lead[] = [
     phone: "+1 (555) 234-5678",
     status: "Contacted",
     value: "$12,000",
+    position: 2,
     createdAt: "2024-03-10T09:00:00Z",
     lastActivity: "2024-03-19T16:45:00Z",
     activities: {

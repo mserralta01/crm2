@@ -1,0 +1,22 @@
+{
+    "sourceFile": "app/layout.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741292872568,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741293944957,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,8 +2,9 @@\n import type { Metadata } from 'next';\n import { Inter } from 'next/font/google';\n import { ThemeProvider } from '@/components/theme-provider';\n import { DatabaseSeeder } from \"@/components/DatabaseSeeder\";\n+import { Toaster } from \"@/components/ui/toaster\";\n \n const inter = Inter({ subsets: ['latin'] });\n \n export const metadata: Metadata = {\n@@ -27,8 +28,9 @@\n           disableTransitionOnChange\n         >\n           <DatabaseSeeder />\n           {children}\n+          <Toaster />\n         </ThemeProvider>\n       </body>\n     </html>\n   );\n"
+                }
+            ],
+            "date": 1741292872568,
+            "name": "Commit-0",
+            "content": "import './globals.css';\nimport type { Metadata } from 'next';\nimport { Inter } from 'next/font/google';\nimport { ThemeProvider } from '@/components/theme-provider';\nimport { DatabaseSeeder } from \"@/components/DatabaseSeeder\";\n\nconst inter = Inter({ subsets: ['latin'] });\n\nexport const metadata: Metadata = {\n  title: 'SalesPro CRM - Modern Sales Management',\n  description: 'Streamline your sales process with our modern CRM solution',\n  keywords: 'CRM, sales, lead management, pipeline management, sales automation',\n};\n\nexport default function RootLayout({\n  children,\n}: {\n  children: React.ReactNode;\n}) {\n  return (\n    <html lang=\"en\" suppressHydrationWarning>\n      <body className={inter.className}>\n        <ThemeProvider\n          attribute=\"class\"\n          defaultTheme=\"light\"\n          enableSystem\n          disableTransitionOnChange\n        >\n          <DatabaseSeeder />\n          {children}\n        </ThemeProvider>\n      </body>\n    </html>\n  );\n}"
+        }
+    ]
+}
