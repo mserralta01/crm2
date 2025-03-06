@@ -1,0 +1,18 @@
+{
+    "sourceFile": "app/api/uploads/route.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741292526415,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741292526415,
+            "name": "Commit-0",
+            "content": "import { NextRequest, NextResponse } from 'next/server';\nimport { uploadFile } from '@/lib/services/storage-service';\n\nexport async function POST(request: NextRequest): Promise<NextResponse> {\n  try {\n    const formData = await request.formData();\n    const file = formData.get('file') as File;\n    const path = formData.get('path') as string;\n    \n    if (!file) {\n      return NextResponse.json(\n        { error: 'No file provided' },\n        { status: 400 }\n      );\n    }\n    \n    if (!path) {\n      return NextResponse.json(\n        { error: 'No path provided' },\n        { status: 400 }\n      );\n    }\n    \n    const downloadURL = await uploadFile(file, path);\n    \n    return NextResponse.json({\n      url: downloadURL,\n      message: 'File uploaded successfully'\n    });\n  } catch (error: any) {\n    console.error('Error uploading file:', error);\n    return NextResponse.json(\n      { error: 'Failed to upload file', message: error.message },\n      { status: 500 }\n    );\n  }\n}\n\nexport async function OPTIONS(): Promise<NextResponse> {\n  return new NextResponse(null, {\n    status: 204,\n    headers: {\n      'Access-Control-Allow-Origin': '*',\n      'Access-Control-Allow-Methods': 'POST, OPTIONS',\n      'Access-Control-Allow-Headers': 'Content-Type, Authorization'\n    }\n  });\n} "
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "lib/services/storage-service.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741292463346,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741292463346,
+            "name": "Commit-0",
+            "content": "import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';\nimport { storage } from '@/lib/firebase';\n\n// Upload file to Firebase Storage\nexport async function uploadFile(file: File, path: string): Promise<string> {\n  try {\n    const storageRef = ref(storage, path);\n    const snapshot = await uploadBytes(storageRef, file);\n    const downloadURL = await getDownloadURL(snapshot.ref);\n    \n    return downloadURL;\n  } catch (error) {\n    console.error('Error uploading file:', error);\n    throw error;\n  }\n}\n\n// Upload document for a lead\nexport async function uploadLeadDocument(leadId: string, file: File): Promise<string> {\n  const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;\n  const path = `leads/${leadId}/documents/${fileName}`;\n  \n  return uploadFile(file, path);\n}\n\n// Delete file from Firebase Storage\nexport async function deleteFile(fileUrl: string): Promise<void> {\n  try {\n    const fileRef = ref(storage, fileUrl);\n    await deleteObject(fileRef);\n  } catch (error) {\n    console.error('Error deleting file:', error);\n    throw error;\n  }\n}\n\n// Get signed URL for a file (to allow temporary access)\nexport async function getFileUrlWithToken(filePath: string): Promise<string> {\n  try {\n    const fileRef = ref(storage, filePath);\n    const url = await getDownloadURL(fileRef);\n    return url;\n  } catch (error) {\n    console.error('Error getting file URL:', error);\n    throw error;\n  }\n} "
+        }
+    ]
+}

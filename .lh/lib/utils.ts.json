@@ -1,0 +1,18 @@
+{
+    "sourceFile": "lib/utils.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741292542947,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741292542947,
+            "name": "Commit-0",
+            "content": "import { type ClassValue, clsx } from \"clsx\"\nimport { twMerge } from \"tailwind-merge\"\nimport { seedDatabase, isDatabaseSeeded } from './services/seed-service';\n\n// Utility function for class names\nexport function cn(...inputs: ClassValue[]) {\n  return twMerge(clsx(inputs))\n}\n\n// Initialize the database with seed data if necessary\nexport async function initDatabase() {\n  if (process.env.NODE_ENV === 'development') {\n    try {\n      const seeded = await isDatabaseSeeded();\n      \n      if (!seeded) {\n        console.log('Database not seeded, seeding now...');\n        await seedDatabase();\n      } else {\n        console.log('Database already seeded, skipping seed process');\n      }\n    } catch (error) {\n      console.error('Error initializing database:', error);\n    }\n  }\n}\n\n// Format currency value\nexport function formatCurrency(value: number | string): string {\n  const numericValue = typeof value === 'string' \n    ? parseFloat(value.replace(/[^0-9.]/g, '')) \n    : value;\n  \n  return new Intl.NumberFormat('en-US', {\n    style: 'currency',\n    currency: 'USD',\n    minimumFractionDigits: 0,\n    maximumFractionDigits: 0\n  }).format(numericValue);\n}\n\n// Format date to a readable string\nexport function formatDate(dateString: string): string {\n  const options: Intl.DateTimeFormatOptions = { \n    year: 'numeric', \n    month: 'short', \n    day: 'numeric' \n  };\n  \n  return new Date(dateString).toLocaleDateString('en-US', options);\n}\n\n// Format time to a readable string\nexport function formatTime(dateString: string): string {\n  const options: Intl.DateTimeFormatOptions = {\n    hour: 'numeric',\n    minute: '2-digit',\n    hour12: true\n  };\n  \n  return new Date(dateString).toLocaleTimeString('en-US', options);\n}\n\n// Generate a relative time string (e.g., \"2 days ago\")\nexport function getRelativeTimeString(dateString: string): string {\n  const date = new Date(dateString);\n  const now = new Date();\n  const diffInMs = now.getTime() - date.getTime();\n  \n  const diffInSecs = Math.floor(diffInMs / 1000);\n  const diffInMins = Math.floor(diffInSecs / 60);\n  const diffInHours = Math.floor(diffInMins / 60);\n  const diffInDays = Math.floor(diffInHours / 24);\n  \n  if (diffInSecs < 60) {\n    return 'just now';\n  } else if (diffInMins < 60) {\n    return `${diffInMins} ${diffInMins === 1 ? 'minute' : 'minutes'} ago`;\n  } else if (diffInHours < 24) {\n    return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;\n  } else if (diffInDays < 7) {\n    return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;\n  } else {\n    return formatDate(dateString);\n  }\n}\n"
+        }
+    ]
+}

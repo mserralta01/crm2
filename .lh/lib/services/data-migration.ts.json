@@ -1,0 +1,18 @@
+{
+    "sourceFile": "lib/services/data-migration.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741295002801,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741295002801,
+            "name": "Commit-0",
+            "content": "import { migrateLeadsToNumericId } from './leads-service';\n\n/**\n * Run all necessary data migrations\n * This can be called during app initialization to ensure data is in the correct format\n */\nexport async function runDataMigrations(): Promise<void> {\n  try {\n    console.log('Starting data migrations...');\n    \n    // Migrate leads to have numericId field\n    await migrateLeadsToNumericId();\n    \n    console.log('All data migrations completed successfully.');\n  } catch (error) {\n    console.error('Error running data migrations:', error);\n    throw error;\n  }\n} "
+        }
+    ]
+}

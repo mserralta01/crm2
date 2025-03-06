@@ -7,12 +7,15 @@ Welcome to the SalesPro CRM documentation. This guide provides comprehensive inf
 1. [Project Overview](#project-overview)
 2. [Tech Stack](#tech-stack)
 3. [Project Structure](#project-structure)
-4. [Layout System](#layout-system)
-5. [Components](#components)
-6. [Styling Guide](#styling-guide)
-7. [Animation System](#animation-system)
-8. [Development Guidelines](#development-guidelines)
-9. [Change Log](#change-log)
+4. [Architecture](#architecture)
+5. [Firebase Integration](#firebase-integration)
+6. [Layout System](#layout-system)
+7. [Components](#components)
+8. [Styling Guide](#styling-guide)
+9. [Animation System](#animation-system)
+10. [Lead Management](#lead-management)
+11. [Development Guidelines](#development-guidelines)
+12. [Change Log](#change-log)
 
 ## Project Overview
 
@@ -26,6 +29,8 @@ SalesPro CRM is a modern, intuitive customer relationship management system buil
 - Dynamic color themes with dark mode support
 - Performance-optimized animations
 - SEO-friendly structure
+- Firebase backend with authentication, database, and storage
+- Comprehensive lead management
 
 ## Tech Stack
 
@@ -35,6 +40,8 @@ SalesPro CRM is a modern, intuitive customer relationship management system buil
 - **Icons**: Lucide React
 - **Type Safety**: TypeScript
 - **State Management**: React Hooks
+- **Backend Services**: Firebase (Authentication, Firestore, Storage, Analytics)
+- **Email Service**: SendGrid
 
 ## Project Structure
 
@@ -50,10 +57,39 @@ SalesPro CRM is a modern, intuitive customer relationship management system buil
 │   ├── navigation.tsx   # Marketing site navigation
 │   └── footer.tsx       # Marketing site footer
 ├── lib/
-│   └── utils.ts         # Utility functions
-└── docs/
-    └── README.md        # This documentation
+│   ├── utils.ts         # Utility functions
+│   └── firebase.ts      # Firebase configuration and services
+├── docs/
+│   ├── README.md        # This documentation
+│   ├── ARCHITECTURE.md  # Application architecture documentation
+│   ├── FIREBASE.md      # Firebase integration documentation
+│   ├── COMPONENTS.md    # Components documentation
+│   ├── STYLING.md       # Styling guide
+│   └── LEAD_MANAGEMENT.md # Lead management documentation
 ```
+
+## Architecture
+
+For detailed information about the application architecture, please refer to [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+Key architectural aspects include:
+- Next.js App Router structure
+- Firebase backend services
+- Layered architecture for data operations
+- State management approach
+- Authentication and authorization
+- Database design
+- Security considerations
+
+## Firebase Integration
+
+For detailed information about the Firebase integration, please refer to [FIREBASE.md](./FIREBASE.md).
+
+SalesPro CRM uses Firebase for:
+- User authentication and management
+- Data storage with Firestore
+- File storage with Firebase Storage
+- Usage tracking with Firebase Analytics
 
 ## Layout System
 
@@ -155,6 +191,10 @@ const containerVariants = {
 };
 ```
 
+## Lead Management
+
+For detailed information about lead management, please refer to [LEAD_MANAGEMENT.md](./LEAD_MANAGEMENT.md).
+
 ## Development Guidelines
 
 ### Component Creation
@@ -177,11 +217,17 @@ const containerVariants = {
 ### March 2024
 
 #### Added
+- **Real Data Implementation**
+  * Firebase Firestore integration for lead data
+  * Firebase Storage integration for file uploads
+  * API endpoints for CRUD operations
+  * Data seeding mechanism for development
+  * See [IMPLEMENTATION.md](./IMPLEMENTATION.md) for details
 - Authentication System
   * Multi-step registration flow
   * Password reset functionality
   * Protected routes with middleware
-  * Simulated authentication
+  * Firebase Authentication integration
 - Marketing Website
   * Typewriter effect in hero section
   * Gradient text and background effects
@@ -199,6 +245,7 @@ const containerVariants = {
 - Added social media integration
 - Enhanced footer with additional links
 - Implemented dual-layout system for marketing and dashboard
+- Added comprehensive architecture documentation
 
 #### Planned
 - Dashboard implementation
@@ -206,4 +253,4 @@ const containerVariants = {
 - Team collaboration features
 - Analytics dashboard
 - API integration
-- Real authentication system
+- Enhanced Firebase security rules

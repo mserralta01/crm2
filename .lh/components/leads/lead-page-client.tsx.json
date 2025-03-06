@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/leads/lead-page-client.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741293331066,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741293331066,
+            "name": "Commit-0",
+            "content": "\"use client\";\n\nimport { useState, useEffect } from 'react';\nimport { useParams, useSearchParams } from 'next/navigation';\nimport { motion } from 'framer-motion';\nimport { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';\nimport { LeadProfile } from '@/components/leads/lead-profile';\nimport { LeadActivities } from '@/components/leads/lead-activities';\nimport { Phone, MessageSquare, Mail, Calendar, FileText } from 'lucide-react';\nimport { leads } from '@/data/leads';\n\nexport function LeadPageClient() {\n  const params = useParams();\n  const searchParams = useSearchParams();\n  const leadId = params.id as string;\n  const isEditMode = searchParams.get('edit') === 'true';\n  const [lead, setLead] = useState(leads.find(l => l.id.toString() === leadId));\n\n  if (!lead) {\n    return <div>Lead not found</div>;\n  }\n\n  return (\n    <div className=\"min-h-screen bg-background p-8\">\n      <motion.div\n        initial={{ opacity: 0 }}\n        animate={{ opacity: 1 }}\n        className=\"grid grid-cols-12 gap-8\"\n      >\n        {/* Left Column - Lead Profile */}\n        <div className=\"col-span-3\">\n          <LeadProfile lead={lead} isEditMode={isEditMode} />\n        </div>\n\n        {/* Right Column - Activities */}\n        <div className=\"col-span-9\">\n          <Tabs defaultValue=\"phone\" className=\"w-full\">\n            <TabsList className=\"w-full justify-start\">\n              <TabsTrigger value=\"phone\">\n                <Phone className=\"w-4 h-4 mr-2\" />\n                Phone\n              </TabsTrigger>\n              <TabsTrigger value=\"notes\">\n                <MessageSquare className=\"w-4 h-4 mr-2\" />\n                Notes\n              </TabsTrigger>\n              <TabsTrigger value=\"email\">\n                <Mail className=\"w-4 h-4 mr-2\" />\n                Email\n              </TabsTrigger>\n              <TabsTrigger value=\"meetings\">\n                <Calendar className=\"w-4 h-4 mr-2\" />\n                Meetings\n              </TabsTrigger>\n              <TabsTrigger value=\"documents\">\n                <FileText className=\"w-4 h-4 mr-2\" />\n                Documents\n              </TabsTrigger>\n            </TabsList>\n\n            <LeadActivities leadId={leadId} />\n          </Tabs>\n        </div>\n      </motion.div>\n    </div>\n  );\n}"
+        }
+    ]
+}

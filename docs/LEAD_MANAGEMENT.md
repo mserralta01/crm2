@@ -7,6 +7,8 @@ The Lead Management feature provides a comprehensive interface for sales teams t
 1. Lead Profile (Left Column)
 2. Activities Management (Right Column)
 
+All lead data is now persisted in Firebase Firestore, providing real-time storage and retrieval capabilities. See [IMPLEMENTATION.md](./IMPLEMENTATION.md) for implementation details.
+
 ## Architecture
 
 ### Page Structure

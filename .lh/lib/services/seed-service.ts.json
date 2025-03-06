@@ -1,0 +1,18 @@
+{
+    "sourceFile": "lib/services/seed-service.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741292474043,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741292474043,
+            "name": "Commit-0",
+            "content": "import { leads } from '@/data/leads';\nimport { seedLeads } from './leads-service';\n\n/**\n * Seeds the database with initial data for development purposes\n */\nexport async function seedDatabase(): Promise<void> {\n  try {\n    console.log('Starting database seeding...');\n    \n    // Seed leads\n    await seedLeads(leads);\n    \n    console.log('Database seeding completed successfully!');\n  } catch (error) {\n    console.error('Error seeding database:', error);\n    throw error;\n  }\n}\n\n/**\n * Checks if the database has already been seeded\n * This is a simplified version - in real apps, you might want to check for specific collections/documents\n */\nexport async function isDatabaseSeeded(): Promise<boolean> {\n  try {\n    // For now, we'll just check if any leads exist\n    // In a real app, you might have a separate \"metadata\" collection to track this\n    const existingLeads = await fetch('/api/leads/count').then(res => res.json());\n    return existingLeads.count > 0;\n  } catch (error) {\n    console.error('Error checking if database is seeded:', error);\n    return false;\n  }\n} "
+        }
+    ]
+}
