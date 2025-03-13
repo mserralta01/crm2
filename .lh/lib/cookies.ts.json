@@ -1,0 +1,18 @@
+{
+    "sourceFile": "lib/cookies.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741893051302,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741893051302,
+            "name": "Commit-0",
+            "content": "import { cookies } from 'next/headers';\nimport { User } from 'firebase/auth';\nimport { UserRole } from '@/contexts/AuthContext';\n\n// Set authentication cookies\nexport const setAuthCookies = (user: User, role: UserRole) => {\n  // Get the cookies store\n  const cookieStore = cookies();\n  \n  // Set the auth token cookie (Firebase ID token)\n  cookieStore.set('auth-token', user.uid, {\n    httpOnly: true,\n    secure: process.env.NODE_ENV === 'production',\n    maxAge: 60 * 60 * 24 * 7, // 1 week\n    path: '/',\n  });\n  \n  // Set the user role cookie\n  cookieStore.set('user-role', role, {\n    httpOnly: true,\n    secure: process.env.NODE_ENV === 'production',\n    maxAge: 60 * 60 * 24 * 7, // 1 week\n    path: '/',\n  });\n};\n\n// Clear authentication cookies\nexport const clearAuthCookies = () => {\n  const cookieStore = cookies();\n  \n  cookieStore.delete('auth-token');\n  cookieStore.delete('user-role');\n};\n\n// Get authentication cookies\nexport const getAuthCookies = () => {\n  const cookieStore = cookies();\n  \n  return {\n    token: cookieStore.get('auth-token')?.value,\n    role: cookieStore.get('user-role')?.value as UserRole | undefined,\n  };\n}; "
+        }
+    ]
+}

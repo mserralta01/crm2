@@ -1,0 +1,22 @@
+{
+    "sourceFile": "components/ClientLayout.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741893461756,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741893634297,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,30 +1,1 @@\n-\"use client\";\n-\n-import React from 'react';\n-import { ThemeProvider } from '@/components/theme-provider';\n-import { DatabaseSeeder } from \"@/components/DatabaseSeeder\";\n-import { Toaster } from \"@/components/ui/toaster\";\n-import { AuthProvider } from '@/contexts/AuthContext';\n-import { Toaster as SonnerToaster } from 'sonner';\n-\n-export default function ClientLayout({\n-  children,\n-}: {\n-  children: React.ReactNode;\n-}) {\n-  return (\n-    <ThemeProvider\n-      attribute=\"class\"\n-      defaultTheme=\"light\"\n-      enableSystem\n-      disableTransitionOnChange\n-    >\n-      <AuthProvider>\n-        <DatabaseSeeder />\n-        {children}\n-        <Toaster />\n-        <SonnerToaster position=\"top-right\" />\n-      </AuthProvider>\n-    </ThemeProvider>\n-  );\n-} \n\\ No newline at end of file\n+ \n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1741893461756,
+            "name": "Commit-0",
+            "content": "\"use client\";\n\nimport React from 'react';\nimport { ThemeProvider } from '@/components/theme-provider';\nimport { DatabaseSeeder } from \"@/components/DatabaseSeeder\";\nimport { Toaster } from \"@/components/ui/toaster\";\nimport { AuthProvider } from '@/contexts/AuthContext';\nimport { Toaster as SonnerToaster } from 'sonner';\n\nexport default function ClientLayout({\n  children,\n}: {\n  children: React.ReactNode;\n}) {\n  return (\n    <ThemeProvider\n      attribute=\"class\"\n      defaultTheme=\"light\"\n      enableSystem\n      disableTransitionOnChange\n    >\n      <AuthProvider>\n        <DatabaseSeeder />\n        {children}\n        <Toaster />\n        <SonnerToaster position=\"top-right\" />\n      </AuthProvider>\n    </ThemeProvider>\n  );\n} "
+        }
+    ]
+}

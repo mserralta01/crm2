@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,9 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
-import { Menu, X, BarChart2, Users, Mail, FileText, Zap } from 'lucide-react';
+import { Menu, X, BarChart2, Users, Mail, FileText, Zap, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const features = [
   {
@@ -44,10 +46,29 @@ const features = [
 ];
 
 export function Navigation() {
+  const { signInWithGoogle } = useAuth();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith('/dashboard');
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    
+    try {
+      await signInWithGoogle();
+      toast.success('Account created successfully with Google!');
+      router.push('/dashboard');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to sign up with Google');
+      // If there's an error, redirect to the register page as fallback
+      router.push('/auth/register');
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -123,8 +144,18 @@ export function Navigation() {
               <Button variant="ghost" asChild>
                 <Link href="/auth/login">Login</Link>
               </Button>
-              <Button asChild>
-                <Link href="/auth/register">Start Free Trial</Link>
+              <Button 
+                onClick={handleGoogleSignIn}
+                disabled={isGoogleLoading}
+              >
+                {isGoogleLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing up...
+                  </>
+                ) : (
+                  'Start Free Trial'
+                )}
               </Button>
             </div>
           </div>
@@ -178,8 +209,19 @@ export function Navigation() {
                 <Button variant="ghost" className="w-full justify-start" asChild>
                   <Link href="/auth/login">Login</Link>
                 </Button>
-                <Button className="w-full justify-start" asChild>
-                  <Link href="/auth/register">Start Free Trial</Link>
+                <Button 
+                  className="w-full justify-start"
+                  onClick={handleGoogleSignIn}
+                  disabled={isGoogleLoading}
+                >
+                  {isGoogleLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing up...
+                    </>
+                  ) : (
+                    'Start Free Trial'
+                  )}
                 </Button>
               </div>
             </div>

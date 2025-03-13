@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1741891344417,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741892929305,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,14 +5,21 @@\n   // Check if the request is for a protected route\n   if (request.nextUrl.pathname.startsWith('/dashboard')) {\n     // Get the authentication token from the cookies\n     const token = request.cookies.get('auth-token')?.value;\n+    const userRole = request.cookies.get('user-role')?.value;\n     \n     // If no token is found, redirect to login\n     if (!token) {\n       return NextResponse.redirect(new URL('/auth/login', request.url));\n     }\n     \n+    // If token exists but user is not an admin, redirect to unauthorized page\n+    // Only for admin-specific routes\n+    if (request.nextUrl.pathname.startsWith('/dashboard/admin') && userRole !== 'admin') {\n+      return NextResponse.redirect(new URL('/unauthorized', request.url));\n+    }\n+    \n     // If token exists, allow the request to proceed\n     // In a real application, you would verify the token's validity here\n   }\n \n"
                 }
             ],
             "date": 1741891344417,

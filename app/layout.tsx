@@ -4,6 +4,8 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { DatabaseSeeder } from "@/components/DatabaseSeeder";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from 'sonner';
+import ClientAuthProvider from '@/components/ClientAuthProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,9 +29,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <DatabaseSeeder />
-          {children}
-          <Toaster />
+          <ClientAuthProvider>
+            <DatabaseSeeder />
+            {children}
+            <Toaster />
+            <SonnerToaster position="top-right" />
+          </ClientAuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -11,3 +11,4 @@ alwaysApply: false
 - give the human 3 options for a fix  with a confidence score and wait for the human to choose which solution
 - do as little changes as possible
 - document all your changes
+- if a port is busy kill nodes js and restart the server. Do not start the dev env on a new port
