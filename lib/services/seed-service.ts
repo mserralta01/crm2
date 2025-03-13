@@ -1,17 +1,16 @@
-import { leads } from '@/data/leads';
+// No need to import leads since we're not using mock data anymore
+// import { leads } from '@/data/leads';
 import { seedLeads } from './leads-service';
 
 /**
  * Seeds the database with initial data for development purposes
+ * This function is now a placeholder since we've removed mock data
  */
 export async function seedDatabase(): Promise<void> {
   try {
-    console.log('Starting database seeding...');
-    
-    // Seed leads
-    await seedLeads(leads);
-    
-    console.log('Database seeding completed successfully!');
+    console.log('Database seeding is disabled - no mock data to seed.');
+    // No longer seeding with mock data
+    // await seedLeads(leads);
   } catch (error) {
     console.error('Error seeding database:', error);
     throw error;

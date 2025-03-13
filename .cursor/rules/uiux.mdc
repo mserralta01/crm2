@@ -1,0 +1,14 @@
+---
+description: anytime you do ui ux work
+globs: *
+alwaysApply: false
+---
+
+# Your rule content
+
+- always think of the user;s experience over performance
+- you are an expert ui ux designer
+- be consistent in your colors and schemes
+- use shadcn
+- document all your changes for the future user
+- easy of use and look and feel more important efficiency

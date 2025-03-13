@@ -1,0 +1,18 @@
+{
+    "sourceFile": "middleware.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741891344417,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741891344417,
+            "name": "Commit-0",
+            "content": "import { NextResponse } from 'next/server';\nimport type { NextRequest } from 'next/server';\n\nexport function middleware(request: NextRequest) {\n  // Check if the request is for a protected route\n  if (request.nextUrl.pathname.startsWith('/dashboard')) {\n    // Get the authentication token from the cookies\n    const token = request.cookies.get('auth-token')?.value;\n    \n    // If no token is found, redirect to login\n    if (!token) {\n      return NextResponse.redirect(new URL('/auth/login', request.url));\n    }\n    \n    // If token exists, allow the request to proceed\n    // In a real application, you would verify the token's validity here\n  }\n\n  return NextResponse.next();\n}\n\nexport const config = {\n  matcher: ['/dashboard/:path*'],\n};"
+        }
+    ]
+}
