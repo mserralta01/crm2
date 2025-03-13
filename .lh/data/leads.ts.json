@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1741293593484,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741890865880,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,90 +28,6 @@\n   duration?: string;\n   attachments?: string[];\n }\n \n-export const leads: Lead[] = [\n-  {\n-    id: 1,\n-    name: \"John Smith\",\n-    company: \"Tech Solutions Inc\",\n-    email: \"john@techsolutions.com\",\n-    phone: \"+1 (555) 123-4567\",\n-    status: \"New\",\n-    value: \"$5,000\",\n-    position: 1,\n-    createdAt: \"2024-03-15T10:00:00Z\",\n-    lastActivity: \"2024-03-20T15:30:00Z\",\n-    activities: {\n-      calls: [\n-        {\n-          id: 1,\n-          type: 'call',\n-          title: 'Initial Contact',\n-          description: 'Discussed product requirements and pricing',\n-          date: '2024-03-18T14:30:00Z',\n-          duration: '15 minutes',\n-          status: 'Completed'\n-        }\n-      ],\n-      notes: [\n-        {\n-          id: 2,\n-          type: 'note',\n-          title: 'Follow-up Required',\n-          description: 'Need to send pricing proposal by end of week',\n-          date: '2024-03-18T15:00:00Z'\n-        }\n-      ],\n-      emails: [\n-        {\n-          id: 3,\n-          type: 'email',\n-          title: 'Pricing Proposal',\n-          description: 'Sent detailed pricing breakdown and features list',\n-          date: '2024-03-19T09:15:00Z',\n-          attachments: ['proposal.pdf']\n-        }\n-      ],\n-      meetings: [\n-        {\n-          id: 4,\n-          type: 'meeting',\n-          title: 'Product Demo',\n-          description: 'Scheduled demo with technical team',\n-          date: '2024-03-22T13:00:00Z',\n-          duration: '1 hour'\n-        }\n-      ],\n-      documents: [\n-        {\n-          id: 5,\n-          type: 'document',\n-          title: 'Requirements Document',\n-          description: 'Technical requirements and specifications',\n-          date: '2024-03-19T11:30:00Z',\n-          attachments: ['requirements.pdf']\n-        }\n-      ]\n-    }\n-  },\n-  {\n-    id: 2,\n-    name: \"Sarah Johnson\",\n-    company: \"Marketing Pro\",\n-    email: \"sarah@marketingpro.com\",\n-    phone: \"+1 (555) 234-5678\",\n-    status: \"Contacted\",\n-    value: \"$12,000\",\n-    position: 2,\n-    createdAt: \"2024-03-10T09:00:00Z\",\n-    lastActivity: \"2024-03-19T16:45:00Z\",\n-    activities: {\n-      calls: [],\n-      notes: [],\n-      emails: [],\n-      meetings: [],\n-      documents: []\n-    }\n-  },\n-  // ... other leads with similar structure\n-];\n\\ No newline at end of file\n+// Empty array - no mock data\n+export const leads: Lead[] = [];\n\\ No newline at end of file\n"
                 }
             ],
             "date": 1741293593484,

@@ -1,0 +1,17 @@
+---
+description: write back end codes
+globs: *
+alwaysApply: false
+---
+
+# Your rule content
+
+- first read relevant documentations in /docs
+- Code like an expert senior developer
+- fellow best practices and industry standards
+- be careful with typescript
+- write in as minimum codes as possible
+- comment your code
+- document your changs to help AI program more efficiently
+
+

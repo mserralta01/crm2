@@ -1,0 +1,18 @@
+{
+    "sourceFile": "app/dashboard/leads/[id]/page.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741890906498,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741890906498,
+            "name": "Commit-0",
+            "content": "import { Metadata } from 'next';\nimport { LeadPageClient } from '@/components/leads/lead-page-client';\n// Removed mock data import\n// import { leads } from '@/data/leads';\n\nexport const metadata: Metadata = {\n  title: 'Lead Details - SalesPro CRM',\n  description: 'View and manage lead details',\n};\n\n// No longer generating static params from mock data\n// export function generateStaticParams() {\n//   return leads.map((lead) => ({\n//     id: lead.id.toString(),\n//   }));\n// }\n\nexport default function LeadPage() {\n  return <LeadPageClient />;\n}"
+        }
+    ]
+}

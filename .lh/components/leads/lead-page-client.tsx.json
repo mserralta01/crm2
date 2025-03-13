@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1741293331066,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741890926712,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -6,21 +6,48 @@\n import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';\n import { LeadProfile } from '@/components/leads/lead-profile';\n import { LeadActivities } from '@/components/leads/lead-activities';\n import { Phone, MessageSquare, Mail, Calendar, FileText } from 'lucide-react';\n-import { leads } from '@/data/leads';\n+import { getLeadById } from '@/lib/services/leads-service';\n+import { Lead } from '@/data/leads';\n \n export function LeadPageClient() {\n   const params = useParams();\n   const searchParams = useSearchParams();\n   const leadId = params.id as string;\n   const isEditMode = searchParams.get('edit') === 'true';\n-  const [lead, setLead] = useState(leads.find(l => l.id.toString() === leadId));\n+  const [lead, setLead] = useState<Lead | null>(null);\n+  const [loading, setLoading] = useState(true);\n+  const [error, setError] = useState<string | null>(null);\n \n-  if (!lead) {\n-    return <div>Lead not found</div>;\n+  useEffect(() => {\n+    async function fetchLead() {\n+      try {\n+        setLoading(true);\n+        const leadData = await getLeadById(leadId);\n+        setLead(leadData);\n+        if (!leadData) {\n+          setError('Lead not found');\n+        }\n+      } catch (err) {\n+        console.error('Error fetching lead:', err);\n+        setError('Failed to load lead data');\n+      } finally {\n+        setLoading(false);\n+      }\n+    }\n+\n+    fetchLead();\n+  }, [leadId]);\n+\n+  if (loading) {\n+    return <div className=\"p-8 text-center\">Loading lead data...</div>;\n   }\n \n+  if (error || !lead) {\n+    return <div className=\"p-8 text-center text-red-500\">{error || 'Lead not found'}</div>;\n+  }\n+\n   return (\n     <div className=\"min-h-screen bg-background p-8\">\n       <motion.div\n         initial={{ opacity: 0 }}\n"
                 }
             ],
             "date": 1741293331066,

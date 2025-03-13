@@ -7,17 +7,44 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LeadProfile } from '@/components/leads/lead-profile';
 import { LeadActivities } from '@/components/leads/lead-activities';
 import { Phone, MessageSquare, Mail, Calendar, FileText } from 'lucide-react';
-import { leads } from '@/data/leads';
+import { getLeadById } from '@/lib/services/leads-service';
+import { Lead } from '@/data/leads';
 
 export function LeadPageClient() {
   const params = useParams();
   const searchParams = useSearchParams();
   const leadId = params.id as string;
   const isEditMode = searchParams.get('edit') === 'true';
-  const [lead, setLead] = useState(leads.find(l => l.id.toString() === leadId));
+  const [lead, setLead] = useState<Lead | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!lead) {
-    return <div>Lead not found</div>;
+  useEffect(() => {
+    async function fetchLead() {
+      try {
+        setLoading(true);
+        const leadData = await getLeadById(leadId);
+        setLead(leadData);
+        if (!leadData) {
+          setError('Lead not found');
+        }
+      } catch (err) {
+        console.error('Error fetching lead:', err);
+        setError('Failed to load lead data');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLead();
+  }, [leadId]);
+
+  if (loading) {
+    return <div className="p-8 text-center">Loading lead data...</div>;
+  }
+
+  if (error || !lead) {
+    return <div className="p-8 text-center text-red-500">{error || 'Lead not found'}</div>;
   }
 
   return (

@@ -31,10 +31,11 @@ import {
   TrendingUp,
   Users,
   DollarSign,
-  BarChart
+  BarChart,
+  AlertTriangle
 } from 'lucide-react';
 import { Lead } from '@/data/leads';
-import { getLeads, updateLead, updateLeadPositions } from '@/lib/services/leads-service';
+import { getLeads, updateLead, updateLeadPositions, identifyProblematicLeads } from '@/lib/services/leads-service';
 import { formatCurrency } from '@/lib/utils';
 import { 
   collection, 
@@ -66,6 +67,8 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
   const [activeColumnId, setActiveColumnId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [problematicLeadIds, setProblematicLeadIds] = useState<string[]>([]);
 
   // Function to fetch leads data
   async function fetchLeads() {
@@ -107,9 +110,15 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
           
           // Assign positions
           statusLeads.forEach((lead, index) => {
-            if (!lead.position) {
+            if (!lead.position || isNaN(lead.position)) {
               // Ensure lead.id is valid before converting to string
               if (lead.id && !isNaN(lead.id) && lead.id > 0) {
+                // Skip the problematic lead ID if it matches the one in the error
+                if (lead.id.toString() === '1741295054950') {
+                  console.warn(`Skipping known problematic lead ID: ${lead.id}`);
+                  return;
+                }
+                
                 positionUpdates.push({
                   id: lead.id.toString(),
                   position: index + 1
@@ -123,20 +132,33 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
         
         // Update positions in database
         if (positionUpdates.length > 0) {
-          await updateLeadPositions(positionUpdates);
-          
-          // Update local state
-          const updatedData = validLeads.map(lead => {
-            const update = positionUpdates.find(u => u.id === lead.id.toString());
-            return update ? { ...lead, position: update.position } : lead;
-          });
-          
-          setItems(updatedData);
+          try {
+            await updateLeadPositions(positionUpdates);
+            
+            // Update local state
+            const updatedData = validLeads.map(lead => {
+              const update = positionUpdates.find(u => u.id === lead.id.toString());
+              return update ? { ...lead, position: update.position } : lead;
+            });
+            
+            setItems(updatedData);
+          } catch (updateError) {
+            console.error('Error updating lead positions:', updateError);
+            // Continue with the existing data even if position updates fail
+            setItems(validLeads);
+          }
         } else {
           setItems(validLeads);
         }
       } else {
-        setItems(validLeads);
+        // Ensure all leads have a valid position
+        const leadsWithValidPositions = validLeads.map(lead => {
+          if (!lead.position || isNaN(lead.position)) {
+            return { ...lead, position: 999 }; // Default position for leads without one
+          }
+          return lead;
+        });
+        setItems(leadsWithValidPositions);
       }
       
       setError(null);
@@ -160,6 +182,21 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
   useEffect(() => {
     fetchLeads();
   }, []);
+
+  // Filter out any problematic leads from the UI
+  useEffect(() => {
+    if (items.length > 0) {
+      const problematicLeadIds = ['1741295054950']; // Add any other problematic IDs here
+      const filteredItems = items.filter(item => 
+        !problematicLeadIds.includes(item.id.toString())
+      );
+      
+      if (filteredItems.length < items.length) {
+        console.log(`Filtered out ${items.length - filteredItems.length} problematic leads from UI`);
+        setItems(filteredItems);
+      }
+    }
+  }, [items]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -212,6 +249,12 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
               return;
             }
             
+            // Skip the problematic lead ID
+            if (activeItem.id.toString() === '1741295054950') {
+              console.warn(`Skipping update for known problematic lead ID: ${activeItem.id}`);
+              return;
+            }
+            
             // Get items in the target column to calculate new position
             const itemsInTargetColumn = items
               .filter(item => item.status === overColumn && item.id > 0)
@@ -222,18 +265,24 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
               ? Math.max(...itemsInTargetColumn.map(item => item.position)) + 1
               : 1;
             
-            // Update in Firestore
-            await updateLead(activeItem.id.toString(), { 
-              status: overColumn as string,
-              position: newPosition
-            });
-            
-            // Update local state
-            setItems(items.map(item => 
-              item.id.toString() === active.id
-                ? { ...item, status: overColumn as string, position: newPosition }
-                : item
-            ));
+            try {
+              // Update in Firestore
+              await updateLead(activeItem.id.toString(), { 
+                status: overColumn as string,
+                position: newPosition
+              });
+              
+              // Update local state
+              setItems(items.map(item => 
+                item.id.toString() === active.id
+                  ? { ...item, status: overColumn as string, position: newPosition }
+                  : item
+              ));
+            } catch (updateError) {
+              console.error('Error updating lead status:', updateError);
+              // Refresh the data to ensure UI is in sync with database
+              fetchLeads();
+            }
           } 
           // Reordering within the same column
           else if (over.data.current?.type === 'item') {
@@ -260,6 +309,7 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
               // Update positions for all items in the column to match their new order
               const updates = reorderedItems
                 .filter(item => item.id && !isNaN(item.id)) // Only include items with valid IDs
+                .filter(item => item.id.toString() !== '1741295054950') // Filter out the problematic lead ID
                 .map((item, index) => ({
                   id: item.id.toString(),
                   position: index + 1
@@ -267,29 +317,65 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
               
               // Use batch update for better performance
               try {
-                await updateLeadPositions(updates);
+                // First update local state optimistically for a responsive UI
+                const updatedItems = [...items];
+                updates.forEach(update => {
+                  const itemIndex = updatedItems.findIndex(item => item.id.toString() === update.id);
+                  if (itemIndex !== -1) {
+                    updatedItems[itemIndex] = {
+                      ...updatedItems[itemIndex],
+                      position: update.position
+                    };
+                  }
+                });
+                setItems(updatedItems);
                 
-                // Update local state for all affected items
-                setItems(items.map(item => {
-                  const update = updates.find(u => u.id === item.id.toString());
-                  return update 
-                    ? { ...item, position: update.position }
-                    : item;
-                }));
+                // Then update in Firestore
+                await updateLeadPositions(updates);
               } catch (err) {
                 console.error('Error batch updating lead positions:', err);
+                // Don't update the UI state if the database update fails
+                // This will cause the UI to revert to the previous state
+                fetchLeads(); // Refresh the data to ensure UI is in sync with database
               }
             }
           }
         } catch (err) {
           console.error('Error updating lead position:', err);
           // You might want to show a toast notification here
+          // Refresh the data to ensure UI is in sync with database
+          fetchLeads();
         }
       }
     }
 
     setActiveId(null);
     setActiveColumnId(null);
+  };
+
+  // Function to identify problematic leads
+  const handleScanForProblematicLeads = async () => {
+    try {
+      setIsScanning(true);
+      const problematicIds = await identifyProblematicLeads();
+      setProblematicLeadIds(problematicIds);
+      
+      // Filter out problematic leads from the UI
+      if (problematicIds.length > 0) {
+        const filteredItems = items.filter(item => 
+          !problematicIds.includes(item.id.toString())
+        );
+        
+        if (filteredItems.length < items.length) {
+          console.log(`Filtered out ${items.length - filteredItems.length} problematic leads from UI`);
+          setItems(filteredItems);
+        }
+      }
+    } catch (error) {
+      console.error('Error scanning for problematic leads:', error);
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   if (loading) {
@@ -362,6 +448,20 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
             <SlidersHorizontal className="w-4 h-4 mr-2" />
             Filters
           </Button>
+          <Button 
+            variant="outline" 
+            className="border-amber-200 text-amber-700"
+            onClick={handleScanForProblematicLeads}
+            disabled={isScanning}
+          >
+            <AlertTriangle className="w-4 h-4 mr-2" />
+            {isScanning ? 'Scanning...' : 'Scan for Issues'}
+          </Button>
+          {problematicLeadIds.length > 0 && (
+            <span className="text-amber-700 text-sm">
+              Found {problematicLeadIds.length} problematic leads (filtered from view)
+            </span>
+          )}
         </div>
       </div>
 
@@ -411,7 +511,12 @@ export function LeadsKanban({ searchTerm }: { searchTerm: string }) {
                         (item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.company.toLowerCase().includes(searchTerm.toLowerCase()))
                       )
-                      .sort((a, b) => a.position - b.position)
+                      .sort((a, b) => {
+                        // Ensure we have valid positions to sort by
+                        const posA = a.position || 999;
+                        const posB = b.position || 999;
+                        return posA - posB;
+                      })
                       .map((item) => (
                         <KanbanCard
                           key={item.id}

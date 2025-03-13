@@ -85,39 +85,55 @@ const leadConverter: FirestoreDataConverter<Lead> = {
       id = isNaN(Number(snapshot.id)) ? generateUniqueInvalidId() : Number(snapshot.id);
     }
     
+    // Helper function to safely convert Timestamp to ISO string
+    const safeTimestampToISOString = (timestamp: any) => {
+      if (!timestamp) return new Date().toISOString(); // Default to current date
+      if (typeof timestamp.toDate === 'function') {
+        return timestamp.toDate().toISOString();
+      }
+      if (timestamp instanceof Date) {
+        return timestamp.toISOString();
+      }
+      return new Date().toISOString(); // Fallback
+    };
+    
+    // Helper function to safely convert activity date
+    const safeActivityDateToISOString = (activity: any) => {
+      if (!activity || !activity.date) return { ...activity, date: new Date().toISOString() };
+      return {
+        ...activity,
+        date: safeTimestampToISOString(activity.date)
+      };
+    };
+    
     // Convert Firestore data to Lead type
     return {
       id: id, // Use the determined ID
-      name: data.name,
-      company: data.company,
-      email: data.email,
-      phone: data.phone,
-      status: data.status,
-      value: data.value,
+      name: data.name || '',
+      company: data.company || '',
+      email: data.email || '',
+      phone: data.phone || '',
+      status: data.status || 'New',
+      value: data.value || '$0',
       position: data.position || 0, // Include position with default
-      createdAt: data.createdAt.toDate().toISOString(),
-      lastActivity: data.lastActivity.toDate().toISOString(),
+      createdAt: safeTimestampToISOString(data.createdAt),
+      lastActivity: safeTimestampToISOString(data.lastActivity),
       activities: {
-        calls: data.activities?.calls?.map((call: any) => ({
-          ...call,
-          date: call.date.toDate().toISOString()
-        })) || [],
-        notes: data.activities?.notes?.map((note: any) => ({
-          ...note,
-          date: note.date.toDate().toISOString()
-        })) || [],
-        emails: data.activities?.emails?.map((email: any) => ({
-          ...email,
-          date: email.date.toDate().toISOString()
-        })) || [],
-        meetings: data.activities?.meetings?.map((meeting: any) => ({
-          ...meeting,
-          date: meeting.date.toDate().toISOString()
-        })) || [],
-        documents: data.activities?.documents?.map((document: any) => ({
-          ...document,
-          date: document.date.toDate().toISOString()
-        })) || []
+        calls: Array.isArray(data.activities?.calls) 
+          ? data.activities.calls.map(safeActivityDateToISOString) 
+          : [],
+        notes: Array.isArray(data.activities?.notes) 
+          ? data.activities.notes.map(safeActivityDateToISOString) 
+          : [],
+        emails: Array.isArray(data.activities?.emails) 
+          ? data.activities.emails.map(safeActivityDateToISOString) 
+          : [],
+        meetings: Array.isArray(data.activities?.meetings) 
+          ? data.activities.meetings.map(safeActivityDateToISOString) 
+          : [],
+        documents: Array.isArray(data.activities?.documents) 
+          ? data.activities.documents.map(safeActivityDateToISOString) 
+          : []
       }
     };
   }
@@ -132,7 +148,12 @@ export async function getLeads(): Promise<Lead[]> {
     
     const leads: Lead[] = [];
     querySnapshot.forEach((doc) => {
-      leads.push(doc.data());
+      try {
+        leads.push(doc.data());
+      } catch (conversionError) {
+        console.error(`Error converting lead document ${doc.id}:`, conversionError);
+        // Skip this document and continue with others
+      }
     });
     
     return leads;
@@ -377,10 +398,9 @@ export async function seedLeads(initialLeads: Lead[]): Promise<void> {
 // Add a batch update function for updating multiple lead positions
 export async function updateLeadPositions(updates: { id: string; position: number }[]): Promise<void> {
   try {
-    const batch = writeBatch(db);
-    let hasUpdates = false;
+    // First, check which documents actually exist
+    const validUpdates: { id: string; position: number; exists: boolean }[] = [];
     
-    // Prepare batch updates
     for (const update of updates) {
       // Ensure id is a valid string and not NaN or -1
       if (!update.id || update.id === 'NaN' || update.id === 'undefined' || update.id === '-1') {
@@ -388,20 +408,45 @@ export async function updateLeadPositions(updates: { id: string; position: numbe
         continue;
       }
       
-      const leadRef = doc(db, LEADS_COLLECTION, update.id);
-      batch.update(leadRef, { 
-        position: update.position,
-        lastActivity: Timestamp.now()
-      });
-      hasUpdates = true;
+      try {
+        // Check if document exists
+        const leadRef = doc(db, LEADS_COLLECTION, update.id);
+        const docSnap = await getDoc(leadRef);
+        validUpdates.push({
+          ...update,
+          exists: docSnap.exists()
+        });
+      } catch (checkError) {
+        console.warn(`Error checking if lead ${update.id} exists:`, checkError);
+      }
     }
     
-    // Only commit if we have valid updates
-    if (hasUpdates) {
-      await batch.commit();
-    } else {
-      console.log('No valid lead position updates to commit');
+    // Filter to only include existing documents
+    const existingDocUpdates = validUpdates.filter(update => update.exists);
+    
+    if (existingDocUpdates.length < validUpdates.length) {
+      console.warn(`Skipping updates for ${validUpdates.length - existingDocUpdates.length} non-existent leads`);
     }
+    
+    if (existingDocUpdates.length === 0) {
+      console.log('No valid lead position updates to commit (no existing documents)');
+      return;
+    }
+    
+    // Now proceed with batch update for existing documents only
+    const batch = writeBatch(db);
+    
+    for (const update of existingDocUpdates) {
+      const leadRef = doc(db, LEADS_COLLECTION, update.id);
+      // Use set with merge to ensure the update is applied even if some fields are missing
+      batch.set(leadRef, { 
+        position: update.position,
+        lastActivity: Timestamp.now()
+      }, { merge: true });
+    }
+    
+    await batch.commit();
+    console.log(`Successfully updated positions for ${existingDocUpdates.length} leads`);
   } catch (error) {
     console.error('Error updating lead positions:', error);
     throw error;
@@ -445,6 +490,59 @@ export async function migrateLeadsToNumericId(): Promise<void> {
     }
   } catch (error) {
     console.error('Error migrating leads:', error);
+    throw error;
+  }
+}
+
+// Identify problematic leads in the database
+export async function identifyProblematicLeads(): Promise<string[]> {
+  try {
+    console.log('Scanning for problematic leads...');
+    const leadsRef = collection(db, LEADS_COLLECTION);
+    const querySnapshot = await getDocs(leadsRef);
+    
+    const problematicLeadIds: string[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      try {
+        const data = doc.data();
+        
+        // Check for missing required fields
+        const missingFields = [];
+        if (!data.name) missingFields.push('name');
+        if (!data.status) missingFields.push('status');
+        if (!data.createdAt) missingFields.push('createdAt');
+        if (!data.lastActivity) missingFields.push('lastActivity');
+        
+        // Check for invalid timestamp fields
+        const invalidFields = [];
+        if (data.createdAt && typeof data.createdAt.toDate !== 'function') {
+          invalidFields.push('createdAt');
+        }
+        if (data.lastActivity && typeof data.lastActivity.toDate !== 'function') {
+          invalidFields.push('lastActivity');
+        }
+        
+        if (missingFields.length > 0 || invalidFields.length > 0) {
+          console.warn(`Problematic lead found (ID: ${doc.id})`);
+          if (missingFields.length > 0) {
+            console.warn(`  Missing fields: ${missingFields.join(', ')}`);
+          }
+          if (invalidFields.length > 0) {
+            console.warn(`  Invalid fields: ${invalidFields.join(', ')}`);
+          }
+          problematicLeadIds.push(doc.id);
+        }
+      } catch (error) {
+        console.error(`Error analyzing lead ${doc.id}:`, error);
+        problematicLeadIds.push(doc.id);
+      }
+    });
+    
+    console.log(`Found ${problematicLeadIds.length} problematic leads`);
+    return problematicLeadIds;
+  } catch (error) {
+    console.error('Error identifying problematic leads:', error);
     throw error;
   }
 } 
