@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/ProtectedRoute.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741893098457,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741893098457,
+            "name": "Commit-0",
+            "content": "\"use client\";\n\nimport { useEffect, ReactNode } from 'react';\nimport { useRouter } from 'next/navigation';\nimport { useAuth } from '@/contexts/AuthContext';\nimport { Loader2 } from 'lucide-react';\n\ninterface ProtectedRouteProps {\n  children: ReactNode;\n  adminOnly?: boolean;\n}\n\nexport default function ProtectedRoute({ \n  children, \n  adminOnly = false \n}: ProtectedRouteProps) {\n  const { currentUser, loading, isAdmin } = useAuth();\n  const router = useRouter();\n\n  useEffect(() => {\n    if (!loading) {\n      // If not authenticated, redirect to login\n      if (!currentUser) {\n        router.push('/auth/login');\n      } \n      // If admin-only route and user is not admin, redirect to unauthorized\n      else if (adminOnly && !isAdmin) {\n        router.push('/unauthorized');\n      }\n    }\n  }, [currentUser, loading, adminOnly, isAdmin, router]);\n\n  // Show loading state while checking authentication\n  if (loading) {\n    return (\n      <div className=\"flex items-center justify-center min-h-screen\">\n        <Loader2 className=\"h-8 w-8 animate-spin text-primary\" />\n      </div>\n    );\n  }\n\n  // If not authenticated or not admin (when required), don't render children\n  if (!currentUser || (adminOnly && !isAdmin)) {\n    return null;\n  }\n\n  // Render children if authenticated and has proper permissions\n  return <>{children}</>;\n} "
+        }
+    ]
+}

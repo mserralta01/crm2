@@ -1,0 +1,18 @@
+{
+    "sourceFile": "app/auth/reset-password/page.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741893026851,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741893026851,
+            "name": "Commit-0",
+            "content": "\"use client\";\n\nimport { useState } from 'react';\nimport Link from 'next/link';\nimport { motion } from 'framer-motion';\nimport { Button } from '@/components/ui/button';\nimport { Input } from '@/components/ui/input';\nimport { Label } from '@/components/ui/label';\nimport { Loader2 } from 'lucide-react';\nimport { useAuth } from '@/contexts/AuthContext';\nimport { toast } from 'sonner';\n\nexport default function ResetPasswordPage() {\n  const { resetPassword } = useAuth();\n  const [isLoading, setIsLoading] = useState(false);\n  const [isSubmitted, setIsSubmitted] = useState(false);\n  const [email, setEmail] = useState('');\n\n  const handleSubmit = async (e: React.FormEvent) => {\n    e.preventDefault();\n    setIsLoading(true);\n\n    try {\n      await resetPassword(email);\n      toast.success('Password reset email sent');\n      setIsSubmitted(true);\n    } catch (error: any) {\n      toast.error(error.message || 'Failed to send reset email');\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  return (\n    <motion.div\n      initial={{ opacity: 0, y: 20 }}\n      animate={{ opacity: 1, y: 0 }}\n      transition={{ duration: 0.6 }}\n    >\n      <div className=\"mb-8\">\n        <h2 className=\"text-3xl font-bold mb-2\">Reset your password</h2>\n        <p className=\"text-muted-foreground\">\n          {!isSubmitted\n            ? \"Enter your email and we'll send you instructions to reset your password\"\n            : \"Check your email for reset instructions\"}\n        </p>\n      </div>\n\n      {!isSubmitted ? (\n        <form onSubmit={handleSubmit} className=\"space-y-6\">\n          <div>\n            <Label htmlFor=\"email\">Email address</Label>\n            <Input\n              id=\"email\"\n              type=\"email\"\n              placeholder=\"name@company.com\"\n              value={email}\n              onChange={(e) => setEmail(e.target.value)}\n              required\n              disabled={isLoading}\n            />\n          </div>\n\n          <Button\n            type=\"submit\"\n            className=\"w-full gradient-bg\"\n            disabled={isLoading}\n          >\n            {isLoading ? (\n              <>\n                <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />\n                Sending reset link...\n              </>\n            ) : (\n              'Send reset link'\n            )}\n          </Button>\n        </form>\n      ) : (\n        <div className=\"text-center\">\n          <p className=\"mb-6\">\n            We've sent you an email with instructions to reset your password.\n            Please check your inbox.\n          </p>\n          <Button asChild variant=\"outline\">\n            <Link href=\"/auth/login\">Return to login</Link>\n          </Button>\n        </div>\n      )}\n\n      <p className=\"mt-6 text-center text-sm text-muted-foreground\">\n        Remember your password?{' '}\n        <Link\n          href=\"/auth/login\"\n          className=\"text-primary hover:underline\"\n        >\n          Sign in\n        </Link>\n      </p>\n    </motion.div>\n  );\n}"
+        }
+    ]
+}

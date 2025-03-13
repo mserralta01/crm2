@@ -1,0 +1,22 @@
+{
+    "sourceFile": "app/error.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741893495322,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741893635158,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,42 +1,1 @@\n-'use client';\n-\n-import { useEffect } from 'react';\n-import { Button } from '@/components/ui/button';\n-\n-export default function Error({\n-  error,\n-  reset,\n-}: {\n-  error: Error & { digest?: string };\n-  reset: () => void;\n-}) {\n-  useEffect(() => {\n-    // Log the error to an error reporting service\n-    console.error('Application error:', error);\n-  }, [error]);\n-\n-  return (\n-    <div className=\"flex flex-col items-center justify-center min-h-[50vh] p-4\">\n-      <div className=\"max-w-md w-full p-6 bg-background border rounded-lg shadow-lg text-center\">\n-        <h2 className=\"text-2xl font-bold mb-4\">Something went wrong!</h2>\n-        <p className=\"text-muted-foreground mb-6\">\n-          {error.message || 'An unexpected error occurred'}\n-        </p>\n-        <div className=\"flex flex-col sm:flex-row gap-2 justify-center\">\n-          <Button \n-            variant=\"outline\" \n-            onClick={() => window.location.href = '/'}\n-          >\n-            Go to Home\n-          </Button>\n-          <Button \n-            onClick={() => reset()}\n-            className=\"gradient-bg\"\n-          >\n-            Try again\n-          </Button>\n-        </div>\n-      </div>\n-    </div>\n-  );\n-} \n\\ No newline at end of file\n+ \n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1741893495322,
+            "name": "Commit-0",
+            "content": "'use client';\n\nimport { useEffect } from 'react';\nimport { Button } from '@/components/ui/button';\n\nexport default function Error({\n  error,\n  reset,\n}: {\n  error: Error & { digest?: string };\n  reset: () => void;\n}) {\n  useEffect(() => {\n    // Log the error to an error reporting service\n    console.error('Application error:', error);\n  }, [error]);\n\n  return (\n    <div className=\"flex flex-col items-center justify-center min-h-[50vh] p-4\">\n      <div className=\"max-w-md w-full p-6 bg-background border rounded-lg shadow-lg text-center\">\n        <h2 className=\"text-2xl font-bold mb-4\">Something went wrong!</h2>\n        <p className=\"text-muted-foreground mb-6\">\n          {error.message || 'An unexpected error occurred'}\n        </p>\n        <div className=\"flex flex-col sm:flex-row gap-2 justify-center\">\n          <Button \n            variant=\"outline\" \n            onClick={() => window.location.href = '/'}\n          >\n            Go to Home\n          </Button>\n          <Button \n            onClick={() => reset()}\n            className=\"gradient-bg\"\n          >\n            Try again\n          </Button>\n        </div>\n      </div>\n    </div>\n  );\n} "
+        }
+    ]
+}

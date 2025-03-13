@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 const phrases = [
   "TRANSFORM YOUR LEADS",
@@ -14,9 +18,28 @@ const phrases = [
 ];
 
 export function HeroSection() {
+  const { signInWithGoogle } = useAuth();
+  const router = useRouter();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [currentPhrase, setCurrentPhrase] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    
+    try {
+      await signInWithGoogle();
+      toast.success('Account created successfully with Google!');
+      router.push('/dashboard');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to sign up with Google');
+      // If there's an error, redirect to the register page as fallback
+      router.push('/auth/register');
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   useEffect(() => {
     const targetPhrase = phrases[currentIndex];
@@ -73,8 +96,20 @@ export function HeroSection() {
               transition={{ delay: 0.6 }}
               className="flex justify-center md:justify-start"
             >
-              <Button size="lg" className="text-lg gradient-bg hover:opacity-90 transition-opacity" asChild>
-                <Link href="/auth/register">Start Your Free Trial</Link>
+              <Button 
+                size="lg" 
+                className="text-lg gradient-bg hover:opacity-90 transition-opacity"
+                onClick={handleGoogleSignIn}
+                disabled={isGoogleLoading}
+              >
+                {isGoogleLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Signing up...
+                  </>
+                ) : (
+                  'Start Your Free Trial'
+                )}
               </Button>
             </motion.div>
 

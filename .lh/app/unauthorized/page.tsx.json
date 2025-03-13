@@ -1,0 +1,18 @@
+{
+    "sourceFile": "app/unauthorized/page.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741892940531,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741892940531,
+            "name": "Commit-0",
+            "content": "\"use client\";\n\nimport { useEffect } from 'react';\nimport { useRouter } from 'next/navigation';\nimport { Button } from '@/components/ui/button';\nimport { AlertTriangle } from 'lucide-react';\n\nexport default function UnauthorizedPage() {\n  const router = useRouter();\n\n  return (\n    <div className=\"flex flex-col items-center justify-center min-h-screen px-4\">\n      <div className=\"max-w-md w-full p-8 bg-background border rounded-lg shadow-lg\">\n        <div className=\"flex flex-col items-center text-center space-y-4\">\n          <div className=\"p-3 bg-destructive/10 rounded-full\">\n            <AlertTriangle className=\"h-10 w-10 text-destructive\" />\n          </div>\n          \n          <h1 className=\"text-2xl font-bold tracking-tight\">Access Denied</h1>\n          \n          <p className=\"text-muted-foreground\">\n            You don't have permission to access this page. This area is restricted to administrators only.\n          </p>\n          \n          <div className=\"flex flex-col sm:flex-row gap-2 w-full pt-4\">\n            <Button \n              variant=\"outline\" \n              className=\"w-full\" \n              onClick={() => router.push('/dashboard')}\n            >\n              Go to Dashboard\n            </Button>\n            \n            <Button \n              className=\"w-full gradient-bg\" \n              onClick={() => router.push('/')}\n            >\n              Return to Home\n            </Button>\n          </div>\n        </div>\n      </div>\n    </div>\n  );\n} "
+        }
+    ]
+}

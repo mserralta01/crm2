@@ -1,0 +1,22 @@
+{
+    "sourceFile": "app/global-error.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741893506100,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741893635186,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,42 +1,1 @@\n-'use client';\n-\n-import { Inter } from 'next/font/google';\n-\n-const inter = Inter({ subsets: ['latin'] });\n-\n-export default function GlobalError({\n-  error,\n-  reset,\n-}: {\n-  error: Error & { digest?: string };\n-  reset: () => void;\n-}) {\n-  return (\n-    <html lang=\"en\">\n-      <body className={inter.className}>\n-        <div className=\"flex flex-col items-center justify-center min-h-screen p-4\">\n-          <div className=\"max-w-md w-full p-6 bg-white dark:bg-gray-800 border rounded-lg shadow-lg text-center\">\n-            <h2 className=\"text-2xl font-bold mb-4\">Something went wrong!</h2>\n-            <p className=\"text-gray-600 dark:text-gray-300 mb-6\">\n-              {error.message || 'An unexpected error occurred'}\n-            </p>\n-            <div className=\"flex flex-col sm:flex-row gap-2 justify-center\">\n-              <button \n-                onClick={() => window.location.href = '/'}\n-                className=\"px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-700\"\n-              >\n-                Go to Home\n-              </button>\n-              <button \n-                onClick={() => reset()}\n-                className=\"px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700\"\n-              >\n-                Try again\n-              </button>\n-            </div>\n-          </div>\n-        </div>\n-      </body>\n-    </html>\n-  );\n-} \n\\ No newline at end of file\n+ \n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1741893506100,
+            "name": "Commit-0",
+            "content": "'use client';\n\nimport { Inter } from 'next/font/google';\n\nconst inter = Inter({ subsets: ['latin'] });\n\nexport default function GlobalError({\n  error,\n  reset,\n}: {\n  error: Error & { digest?: string };\n  reset: () => void;\n}) {\n  return (\n    <html lang=\"en\">\n      <body className={inter.className}>\n        <div className=\"flex flex-col items-center justify-center min-h-screen p-4\">\n          <div className=\"max-w-md w-full p-6 bg-white dark:bg-gray-800 border rounded-lg shadow-lg text-center\">\n            <h2 className=\"text-2xl font-bold mb-4\">Something went wrong!</h2>\n            <p className=\"text-gray-600 dark:text-gray-300 mb-6\">\n              {error.message || 'An unexpected error occurred'}\n            </p>\n            <div className=\"flex flex-col sm:flex-row gap-2 justify-center\">\n              <button \n                onClick={() => window.location.href = '/'}\n                className=\"px-4 py-2 border rounded-md hover:bg-gray-100 dark:hover:bg-gray-700\"\n              >\n                Go to Home\n              </button>\n              <button \n                onClick={() => reset()}\n                className=\"px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700\"\n              >\n                Try again\n              </button>\n            </div>\n          </div>\n        </div>\n      </body>\n    </html>\n  );\n} "
+        }
+    ]
+}

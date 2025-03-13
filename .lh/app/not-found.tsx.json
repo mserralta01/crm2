@@ -1,0 +1,22 @@
+{
+    "sourceFile": "app/not-found.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741893516036,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741893635209,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,27 +1,1 @@\n-import Link from 'next/link';\n-import { Button } from '@/components/ui/button';\n-\n-export default function NotFound() {\n-  return (\n-    <div className=\"flex flex-col items-center justify-center min-h-[70vh] p-4\">\n-      <div className=\"max-w-md w-full p-6 bg-background border rounded-lg shadow-lg text-center\">\n-        <h2 className=\"text-2xl font-bold mb-4\">404 - Page Not Found</h2>\n-        <p className=\"text-muted-foreground mb-6\">\n-          The page you are looking for doesn't exist or has been moved.\n-        </p>\n-        <div className=\"flex flex-col sm:flex-row gap-2 justify-center\">\n-          <Button asChild variant=\"outline\">\n-            <Link href=\"/dashboard\">\n-              Go to Dashboard\n-            </Link>\n-          </Button>\n-          <Button asChild className=\"gradient-bg\">\n-            <Link href=\"/\">\n-              Return to Home\n-            </Link>\n-          </Button>\n-        </div>\n-      </div>\n-    </div>\n-  );\n-} \n\\ No newline at end of file\n+ \n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1741893516036,
+            "name": "Commit-0",
+            "content": "import Link from 'next/link';\nimport { Button } from '@/components/ui/button';\n\nexport default function NotFound() {\n  return (\n    <div className=\"flex flex-col items-center justify-center min-h-[70vh] p-4\">\n      <div className=\"max-w-md w-full p-6 bg-background border rounded-lg shadow-lg text-center\">\n        <h2 className=\"text-2xl font-bold mb-4\">404 - Page Not Found</h2>\n        <p className=\"text-muted-foreground mb-6\">\n          The page you are looking for doesn't exist or has been moved.\n        </p>\n        <div className=\"flex flex-col sm:flex-row gap-2 justify-center\">\n          <Button asChild variant=\"outline\">\n            <Link href=\"/dashboard\">\n              Go to Dashboard\n            </Link>\n          </Button>\n          <Button asChild className=\"gradient-bg\">\n            <Link href=\"/\">\n              Return to Home\n            </Link>\n          </Button>\n        </div>\n      </div>\n    </div>\n  );\n} "
+        }
+    ]
+}

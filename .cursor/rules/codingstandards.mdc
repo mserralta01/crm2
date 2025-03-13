@@ -13,5 +13,6 @@ alwaysApply: false
 - write in as minimum codes as possible
 - comment your code
 - document your changs to help AI program more efficiently
+- In a server is running on the port already, kill the node js server and restart npm run dev
 
 

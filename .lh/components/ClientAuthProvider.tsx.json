@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/ClientAuthProvider.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741893788882,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741893788882,
+            "name": "Commit-0",
+            "content": "\"use client\";\n\nimport { ReactNode } from 'react';\nimport { AuthProvider } from '@/contexts/AuthContext';\n\nexport default function ClientAuthProvider({ children }: { children: ReactNode }) {\n  return <AuthProvider>{children}</AuthProvider>;\n} "
+        }
+    ]
+}
