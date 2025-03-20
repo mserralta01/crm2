@@ -42,6 +42,36 @@ Key features:
 - Robust null checking and data validation
 - Document existence verification before updates
 
+#### Delete Lead Implementation
+
+The `deleteLead` function performs the following operations:
+1. Verifies that the lead document exists before attempting deletion
+2. Uses Firebase's `deleteDoc` function to remove the document
+3. Implements error handling with detailed logging
+4. Returns a Promise that resolves when deletion is complete or rejects with error details
+
+```typescript
+export async function deleteLead(id: string): Promise<void> {
+  try {
+    // Reference to the lead document
+    const leadRef = doc(db, LEADS_COLLECTION, id);
+    
+    // First verify the document exists
+    const docSnap = await getDoc(leadRef);
+    if (!docSnap.exists()) {
+      throw new Error(`Lead with ID ${id} does not exist`);
+    }
+    
+    // Delete the document
+    await deleteDoc(leadRef);
+    console.log(`Successfully deleted lead ${id}`);
+  } catch (error) {
+    console.error('Error deleting lead:', error);
+    throw error;
+  }
+}
+```
+
 ### 2. Storage Service (`lib/services/storage-service.ts`)
 
 This service manages file uploads and retrieval from Firebase Storage:
@@ -74,6 +104,37 @@ RESTful API endpoints were implemented to provide a clean interface between the 
 - `POST /api/leads/[id]/activities` - Add an activity to a lead
 - `GET /api/leads/count` - Get the count of leads (used for seeding checks)
 
+#### Delete Lead API Endpoint
+
+The DELETE endpoint for leads is implemented in `app/api/leads/[id]/route.ts`:
+
+```typescript
+// DELETE /api/leads/[id] - Delete a lead
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
+  try {
+    await deleteLead(params.id);
+    
+    return NextResponse.json({ message: 'Lead deleted successfully' });
+  } catch (error: any) {
+    console.error('Error deleting lead:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete lead', message: error.message },
+      { status: 500 }
+    );
+  }
+}
+```
+
+This endpoint:
+1. Takes the lead ID from the URL parameters
+2. Calls the `deleteLead` service function
+3. Returns a success message upon completion
+4. Handles errors and returns appropriate HTTP status codes
+5. Includes detailed error messages for debugging
+
 ### 2. Upload API
 
 - `POST /api/uploads` - Upload a file to Firebase Storage
@@ -99,28 +160,140 @@ The following UI components were updated to work with real data:
 ### 2. Leads Table (`components/leads/leads-table.tsx`)
 
 - Fetches lead data from Firebase on component mount
-- Implements client-side filtering
-- Links to individual lead detail pages
-- Displays lead status with color coding
-- Includes loading and empty states
+- Implements client-side filtering and sorting
+- Provides lead editing and deletion functionality
+- Shows loading states during data fetch
 
-### 3. Leads Kanban (`components/leads/leads-kanban.tsx`)
+### 3. Lead Profile (`components/leads/lead-profile.tsx`)
 
-- Fetches lead data from Firebase
-- Supports drag-and-drop status updates that persist to Firestore
-- Real-time summary statistics calculation
-- Status column customization
-- Robust error handling for non-existent documents
-- Graceful recovery from database errors
-- Diagnostic tools for identifying problematic data
-- Filtering of problematic leads from the UI
+- Displays complete lead information
+- Provides edit capabilities with validation
+- Implements lead deletion with confirmation
+- Shows visual feedback during operations
+- Handles error states gracefully
+- Redirects upon successful edit or delete
 
-### 4. Lead Detail Pages
+#### Delete Lead UI Implementation
 
-- Fetches individual lead data from Firebase
-- Displays lead profile and activities
-- Handles loading and error states
-- Empty state handling for activities
+The delete lead functionality in the UI:
+1. Uses the AlertDialog component from Shadcn UI for confirmation
+2. Implements loading state with the isDeleting React state
+3. Disables the delete button during the operation to prevent multiple clicks
+4. Uses toast notifications for operation feedback
+5. Redirects to the leads list page upon successful deletion
+6. Recovers gracefully from errors and allows retry
+7. Follows accessibility best practices for confirmation dialogs
+
+```tsx
+// Delete lead handler in LeadProfile component
+const handleDelete = async () => {
+  try {
+    setIsDeleting(true);
+    await deleteLead(lead.id);
+    
+    toast({
+      title: "Success",
+      description: "Lead has been deleted successfully.",
+    });
+    
+    // Redirect to leads list after deletion
+    router.push('/dashboard/leads');
+  } catch (error) {
+    console.error('Error deleting lead:', error);
+    
+    toast({
+      title: "Error",
+      description: "Failed to delete the lead. Please try again.",
+      variant: "destructive",
+    });
+    setIsDeleting(false);
+  }
+};
+```
+
+## Security Considerations
+
+The implementation includes several security measures:
+
+1. **Authentication Requirements**
+   - All API endpoints require authenticated users
+   - Server-side verification of user session
+   - Protection against unauthorized access
+
+2. **Data Validation**
+   - Server-side validation of all input data
+   - Type checking with TypeScript
+   - Sanitization of user inputs
+
+3. **Error Handling**
+   - Proper error messages without exposing sensitive details
+   - Graceful degradation on failures
+   - Client-side error recovery
+
+4. **Permissions**
+   - Role-based access control for various operations
+   - Different levels of access for viewing, editing, and deleting data
+   - Validation of user permissions before operations
+
+## Testing
+
+The implementation was tested using a combination of:
+
+1. **Unit Tests**
+   - Individual service function testing
+   - Isolated component tests
+   - API endpoint tests with mocked Firebase
+
+2. **Integration Tests**
+   - End-to-end workflows with emulated Firestore
+   - Cross-component interactions
+   - Form submission and validation testing
+
+3. **Manual Testing**
+   - User workflow validation
+   - Error case testing
+   - Performance testing with larger datasets
+
+## Deployment
+
+The application is configured for deployment to Vercel with:
+
+1. **Environment Configuration**
+   - Firebase configuration variables
+   - API keys and secrets management
+   - Production vs development settings
+
+2. **Build Optimization**
+   - Code splitting for improved performance
+   - Static asset optimization
+   - Server-side rendering where appropriate
+
+3. **Monitoring**
+   - Error logging and tracking
+   - Performance monitoring
+   - Usage analytics
+
+## Future Considerations
+
+Future improvements to consider:
+
+1. **Offline Support**
+   - Firebase offline persistence configuration
+   - Offline-first architecture
+   - Sync resolution for conflicts
+
+2. **Performance Optimizations**
+   - Query optimizations for large datasets
+   - Data pagination for list views
+   - Partial document updates
+   - Document references for complex relationships
+
+3. **Feature Enhancements**
+   - Batch operations for leads (multi-delete, status updates)
+   - Advanced search capabilities
+   - Custom activity type definitions
+   - User permission management UI
+   - Lead import/export functionality
 
 ## Data Flow Architecture
 

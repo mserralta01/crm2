@@ -1,0 +1,26 @@
+{
+    "sourceFile": "app/utils/formatters.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1742497608350,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1742497705973,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,33 +1,1 @@\n-/**\n- * Formats a phone number to the format: +1 (###) ###-####\n- * Automatically adds +1 if missing\n- * \n- * @param phoneNumber The raw phone number input\n- * @returns The formatted phone number\n- */\n-export function formatPhoneNumber(phoneNumber: string): string {\n-  // Remove all non-digit characters\n-  const digitsOnly = phoneNumber.replace(/\\D/g, '');\n-  \n-  // Check if the country code is missing\n-  let formattedNumber = digitsOnly;\n-  if (!digitsOnly.startsWith('1') && digitsOnly.length === 10) {\n-    formattedNumber = '1' + digitsOnly;\n-  } else if (digitsOnly.length < 10) {\n-    // Return the original if there aren't enough digits to format\n-    return phoneNumber;\n-  }\n-  \n-  // Handle case where number might be longer than 11 digits\n-  if (formattedNumber.length > 11) {\n-    formattedNumber = formattedNumber.slice(0, 11);\n-  }\n-  \n-  // Format the number\n-  if (formattedNumber.length === 11 && formattedNumber.startsWith('1')) {\n-    return `+1 (${formattedNumber.slice(1, 4)}) ${formattedNumber.slice(4, 7)}-${formattedNumber.slice(7, 11)}`;\n-  }\n-  \n-  // If we couldn't format it properly, return the original\n-  return phoneNumber;\n-} \n\\ No newline at end of file\n+ \n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1742497780217,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,50 @@\n+/**\n+ * Formats a phone number to the format: +1 (###) ###-####\n+ * Automatically adds +1 if missing\n+ * \n+ * @param phoneNumber The raw phone number input\n+ * @returns The formatted phone number\n+ */\n+export function formatPhoneNumber(phoneNumber: string): string {\n+  // Remove all non-digit characters\n+  const digitsOnly = phoneNumber.replace(/\\D/g, '');\n+  \n+  // Check if the country code is missing\n+  let formattedNumber = digitsOnly;\n+  if (!digitsOnly.startsWith('1') && digitsOnly.length === 10) {\n+    formattedNumber = '1' + digitsOnly;\n+  } else if (digitsOnly.length < 10) {\n+    // Return the original if there aren't enough digits to format\n+    return phoneNumber;\n+  }\n+  \n+  // Handle case where number might be longer than 11 digits\n+  if (formattedNumber.length > 11) {\n+    formattedNumber = formattedNumber.slice(0, 11);\n+  }\n+  \n+  // Format the number\n+  if (formattedNumber.length === 11 && formattedNumber.startsWith('1')) {\n+    return `+1 (${formattedNumber.slice(1, 4)}) ${formattedNumber.slice(4, 7)}-${formattedNumber.slice(7, 11)}`;\n+  }\n+  \n+  // If we couldn't format it properly, return the original\n+  return phoneNumber;\n+}\n+\n+/**\n+ * Validates a phone number to ensure it can be formatted correctly\n+ * \n+ * @param phoneNumber The phone number to validate\n+ * @returns Boolean indicating if the phone number is valid\n+ */\n+export function isValidPhoneNumber(phoneNumber: string): boolean {\n+  const digitsOnly = phoneNumber.replace(/\\D/g, '');\n+  \n+  // Must have either 10 digits (US number without country code)\n+  // or 11 digits starting with 1 (US number with country code)\n+  return (\n+    digitsOnly.length === 10 || \n+    (digitsOnly.length === 11 && digitsOnly.startsWith('1'))\n+  );\n+} \n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1742497608350,
+            "name": "Commit-0",
+            "content": "/**\n * Formats a phone number to the format: +1 (###) ###-####\n * Automatically adds +1 if missing\n * \n * @param phoneNumber The raw phone number input\n * @returns The formatted phone number\n */\nexport function formatPhoneNumber(phoneNumber: string): string {\n  // Remove all non-digit characters\n  const digitsOnly = phoneNumber.replace(/\\D/g, '');\n  \n  // Check if the country code is missing\n  let formattedNumber = digitsOnly;\n  if (!digitsOnly.startsWith('1') && digitsOnly.length === 10) {\n    formattedNumber = '1' + digitsOnly;\n  } else if (digitsOnly.length < 10) {\n    // Return the original if there aren't enough digits to format\n    return phoneNumber;\n  }\n  \n  // Handle case where number might be longer than 11 digits\n  if (formattedNumber.length > 11) {\n    formattedNumber = formattedNumber.slice(0, 11);\n  }\n  \n  // Format the number\n  if (formattedNumber.length === 11 && formattedNumber.startsWith('1')) {\n    return `+1 (${formattedNumber.slice(1, 4)}) ${formattedNumber.slice(4, 7)}-${formattedNumber.slice(7, 11)}`;\n  }\n  \n  // If we couldn't format it properly, return the original\n  return phoneNumber;\n} "
+        }
+    ]
+}

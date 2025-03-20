@@ -32,7 +32,8 @@ const leadConverter: FirestoreDataConverter<Lead> = {
     // Add the ID as a numericId field to ensure we can retrieve it later
     const firestoreData = {
       ...leadData,
-      numericId: id, // Store the numeric ID as a field
+      // We don't need to store the document ID - it's already the document ID
+      // Just keep numericId field for backward compatibility
       position: lead.position || 0, // Ensure position is included
       createdAt: Timestamp.fromDate(new Date(lead.createdAt)),
       lastActivity: Timestamp.fromDate(new Date(lead.lastActivity)),
@@ -69,20 +70,14 @@ const leadConverter: FirestoreDataConverter<Lead> = {
   ): Lead {
     const data = snapshot.data(options);
     
-    // Generate a unique negative number for invalid IDs
-    // This avoids the warning about duplicate keys when multiple items have invalid IDs
-    const generateUniqueInvalidId = () => {
-      return -Math.floor(Math.random() * 1000000 + 1);
-    };
-    
-    // Determine the ID - use numericId if available, otherwise try to parse the document ID
-    let id: number;
+    // Determine the numeric ID from the numericId field or generate one if needed
+    let numericId: number;
     if (data.numericId !== undefined && !isNaN(Number(data.numericId))) {
       // Use the numericId field if it exists and is valid
-      id = Number(data.numericId);
+      numericId = Number(data.numericId);
     } else {
-      // Fall back to parsing the document ID
-      id = isNaN(Number(snapshot.id)) ? generateUniqueInvalidId() : Number(snapshot.id);
+      // Fall back to generating a timestamp as numericId
+      numericId = Date.now();
     }
     
     // Helper function to safely convert Timestamp to ISO string
@@ -108,8 +103,10 @@ const leadConverter: FirestoreDataConverter<Lead> = {
     
     // Convert Firestore data to Lead type
     return {
-      id: id, // Use the determined ID
-      name: data.name || '',
+      id: snapshot.id, // Use the document ID (string)
+      numericId,       // Use the numeric ID from data
+      firstName: data.firstName || (data.name ? data.name.split(' ')[0] || '' : ''), // Handle migration from name
+      lastName: data.lastName || (data.name ? data.name.split(' ').slice(1).join(' ') || '' : ''), // Handle migration from name
       company: data.company || '',
       email: data.email || '',
       phone: data.phone || '',
@@ -142,21 +139,75 @@ const leadConverter: FirestoreDataConverter<Lead> = {
 // Get all leads
 export async function getLeads(): Promise<Lead[]> {
   try {
+    console.log('Fetching all leads from database');
     const leadsRef = collection(db, LEADS_COLLECTION).withConverter(leadConverter);
-    const q = query(leadsRef, orderBy('lastActivity', 'desc'));
+    
+    // Don't sort in the query - we'll sort by position after grouping by status
+    const q = query(leadsRef);
     const querySnapshot = await getDocs(q);
     
     const leads: Lead[] = [];
+    let leadsWithoutPosition = 0;
+    
     querySnapshot.forEach((doc) => {
       try {
-        leads.push(doc.data());
+        const leadData = doc.data();
+        
+        // Log any lead without a valid position for debugging
+        if (leadData.position === undefined || isNaN(leadData.position)) {
+          leadsWithoutPosition++;
+          console.log(`Lead ${leadData.id} (${leadData.name}) has no valid position`);
+        }
+        
+        leads.push(leadData);
       } catch (conversionError) {
         console.error(`Error converting lead document ${doc.id}:`, conversionError);
         // Skip this document and continue with others
       }
     });
     
-    return leads;
+    if (leadsWithoutPosition > 0) {
+      console.warn(`Found ${leadsWithoutPosition} leads without valid positions`);
+    }
+    
+    // Group leads by status
+    const leadsByStatus: Record<string, Lead[]> = {};
+    
+    leads.forEach(lead => {
+      if (!leadsByStatus[lead.status]) {
+        leadsByStatus[lead.status] = [];
+      }
+      leadsByStatus[lead.status].push(lead);
+    });
+    
+    // Sort each status group by position
+    Object.keys(leadsByStatus).forEach(status => {
+      leadsByStatus[status].sort((a, b) => {
+        // Use default position 999 for leads without a position
+        const posA = a.position !== undefined && !isNaN(a.position) ? a.position : 999;
+        const posB = b.position !== undefined && !isNaN(b.position) ? b.position : 999;
+        
+        // Log sorting comparisons for debugging
+        // console.log(`Comparing ${a.id} (pos: ${posA}) with ${b.id} (pos: ${posB})`);
+        
+        return posA - posB;
+      });
+      
+      // Log the sorted positions for this status
+      console.log(`Sorted leads for status "${status}": `, 
+        leadsByStatus[status].map(lead => `${lead.id}:${lead.position}`).join(', ')
+      );
+    });
+    
+    // Flatten the leads back into a single array
+    const sortedLeads: Lead[] = [];
+    Object.values(leadsByStatus).forEach(statusLeads => {
+      sortedLeads.push(...statusLeads);
+    });
+    
+    console.log(`Retrieved ${sortedLeads.length} leads, sorted by position within each status`);
+    
+    return sortedLeads;
   } catch (error) {
     console.error('Error getting leads:', error);
     throw error;
@@ -204,7 +255,7 @@ export async function getLeadsByStatus(status: string): Promise<Lead[]> {
 }
 
 // Create a new lead
-export async function createLead(leadData: Omit<Lead, 'id'>): Promise<string> {
+export async function createLead(leadData: Omit<Lead, 'id' | 'numericId'>): Promise<string> {
   try {
     const now = new Date().toISOString();
     
@@ -255,7 +306,8 @@ export async function createLead(leadData: Omit<Lead, 'id'>): Promise<string> {
     const leadsCollection = collection(db, LEADS_COLLECTION);
     const docRef = await addDoc(leadsCollection, firestoreLead);
     
-    console.log(`Created new lead with ID: ${docRef.id}, numericId: ${timestampId}`);
+    console.log(`Added lead with ID: ${docRef.id}, numericId: ${timestampId}`);
+    
     return docRef.id;
   } catch (error) {
     console.error('Error creating lead:', error);
@@ -272,7 +324,29 @@ export async function updateLead(id: string, leadData: Partial<Lead>): Promise<v
       throw new Error(`Invalid lead ID: ${id}`);
     }
     
+    // Ensure position is a valid number if provided
+    if (leadData.position !== undefined) {
+      if (isNaN(leadData.position)) {
+        console.error(`Cannot update lead with invalid position: ${leadData.position}`);
+        throw new Error(`Invalid position value: ${leadData.position}`);
+      }
+      // Log position update for debugging
+      console.log(`Updating lead ${id} position to ${leadData.position}`);
+    }
+    
+    console.log(`Updating lead ${id} with data:`, JSON.stringify(leadData));
+    
     const leadRef = doc(db, LEADS_COLLECTION, id);
+    
+    // Check if document exists before updating
+    const docSnap = await getDoc(leadRef);
+    if (!docSnap.exists()) {
+      console.error(`Cannot update non-existent lead with ID: ${id}`);
+      throw new Error(`Lead with ID ${id} does not exist`);
+    }
+    
+    // Get current data to log changes
+    const currentData = docSnap.data();
     
     // Update the last activity timestamp and provided fields
     const updateData = {
@@ -281,6 +355,17 @@ export async function updateLead(id: string, leadData: Partial<Lead>): Promise<v
     };
     
     await updateDoc(leadRef, updateData);
+    
+    // Verify the update was successful for position changes
+    if (leadData.position !== undefined) {
+      const updatedSnap = await getDoc(leadRef);
+      if (updatedSnap.exists()) {
+        const newData = updatedSnap.data();
+        console.log(`Verification: Lead ${id} position changed from ${currentData.position || 'undefined'} to ${newData.position}`);
+      }
+    }
+    
+    console.log(`Successfully updated lead ${id}`);
   } catch (error) {
     console.error('Error updating lead:', error);
     throw error;
@@ -398,6 +483,13 @@ export async function seedLeads(initialLeads: Lead[]): Promise<void> {
 // Add a batch update function for updating multiple lead positions
 export async function updateLeadPositions(updates: { id: string; position: number }[]): Promise<void> {
   try {
+    console.log(`Attempting to update positions for ${updates.length} leads:`, JSON.stringify(updates));
+    
+    if (updates.length === 0) {
+      console.log('No lead position updates to process');
+      return;
+    }
+    
     // First, check which documents actually exist
     const validUpdates: { id: string; position: number; exists: boolean }[] = [];
     
@@ -405,6 +497,12 @@ export async function updateLeadPositions(updates: { id: string; position: numbe
       // Ensure id is a valid string and not NaN or -1
       if (!update.id || update.id === 'NaN' || update.id === 'undefined' || update.id === '-1') {
         console.warn(`Skipping update for invalid lead ID: ${update.id}`);
+        continue;
+      }
+      
+      // Ensure position is a valid number
+      if (update.position === undefined || isNaN(update.position)) {
+        console.warn(`Skipping update for lead ${update.id} with invalid position: ${update.position}`);
         continue;
       }
       
@@ -433,20 +531,42 @@ export async function updateLeadPositions(updates: { id: string; position: numbe
       return;
     }
     
+    console.log(`Proceeding with batch update for ${existingDocUpdates.length} leads`);
+    
     // Now proceed with batch update for existing documents only
     const batch = writeBatch(db);
     
     for (const update of existingDocUpdates) {
       const leadRef = doc(db, LEADS_COLLECTION, update.id);
-      // Use set with merge to ensure the update is applied even if some fields are missing
-      batch.set(leadRef, { 
+      
+      // Log each update for debugging
+      console.log(`Adding to batch: Lead ${update.id} → Position ${update.position}`);
+      
+      // Use updateDoc instead of set with merge to ensure we're only updating the fields we want
+      // This prevents any potential issues with merge behavior
+      batch.update(leadRef, { 
         position: update.position,
         lastActivity: Timestamp.now()
-      }, { merge: true });
+      });
     }
     
+    // Commit the batch and verify success
     await batch.commit();
-    console.log(`Successfully updated positions for ${existingDocUpdates.length} leads`);
+    console.log(`Successfully committed position updates for ${existingDocUpdates.length} leads`);
+    
+    // Double-check that updates were applied correctly
+    for (const update of existingDocUpdates.slice(0, 2)) { // Check first 2 for validation
+      try {
+        const leadRef = doc(db, LEADS_COLLECTION, update.id);
+        const docSnap = await getDoc(leadRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          console.log(`Verification: Lead ${update.id} position is now ${data.position}`);
+        }
+      } catch (verifyError) {
+        console.warn(`Error verifying update for lead ${update.id}:`, verifyError);
+      }
+    }
   } catch (error) {
     console.error('Error updating lead positions:', error);
     throw error;
@@ -509,17 +629,22 @@ export async function identifyProblematicLeads(): Promise<string[]> {
         
         // Check for missing required fields
         const missingFields = [];
-        if (!data.name) missingFields.push('name');
+        // Don't check for name which doesn't exist in our schema
+        // if (!data.name) missingFields.push('name');
         if (!data.status) missingFields.push('status');
-        if (!data.createdAt) missingFields.push('createdAt');
-        if (!data.lastActivity) missingFields.push('lastActivity');
+        
+        // Timestamps can be missing, don't treat as problematic
+        // if (!data.createdAt) missingFields.push('createdAt');
+        // if (!data.lastActivity) missingFields.push('lastActivity');
         
         // Check for invalid timestamp fields
         const invalidFields = [];
-        if (data.createdAt && typeof data.createdAt.toDate !== 'function') {
+        if (data.createdAt && typeof data.createdAt === 'object' && 
+            typeof data.createdAt.toDate !== 'function') {
           invalidFields.push('createdAt');
         }
-        if (data.lastActivity && typeof data.lastActivity.toDate !== 'function') {
+        if (data.lastActivity && typeof data.lastActivity === 'object' && 
+            typeof data.lastActivity.toDate !== 'function') {
           invalidFields.push('lastActivity');
         }
         
@@ -543,6 +668,6 @@ export async function identifyProblematicLeads(): Promise<string[]> {
     return problematicLeadIds;
   } catch (error) {
     console.error('Error identifying problematic leads:', error);
-    throw error;
+    return []; // Return an empty array on error instead of throwing
   }
-} 
+}

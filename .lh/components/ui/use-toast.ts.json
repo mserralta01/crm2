@@ -1,0 +1,18 @@
+{
+    "sourceFile": "components/ui/use-toast.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1742496266430,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1742496266430,
+            "name": "Commit-0",
+            "content": "export type ToastProps = {\n  title: string;\n  description: string;\n  variant?: 'default' | 'destructive';\n};\n\nexport const toast = (props: ToastProps) => {\n  console.log(`Toast: ${props.title} - ${props.description}`);\n  // Implement a simple toast notification system\n  const toastElement = document.createElement('div');\n  toastElement.className = `fixed bottom-4 right-4 bg-slate-800 text-white p-4 rounded-md shadow-lg ${\n    props.variant === 'destructive' ? 'bg-red-600' : 'bg-slate-800'\n  }`;\n  \n  toastElement.innerHTML = `\n    <h4 class=\"font-semibold\">${props.title}</h4>\n    <p>${props.description}</p>\n  `;\n  \n  document.body.appendChild(toastElement);\n  \n  setTimeout(() => {\n    toastElement.remove();\n  }, 3000);\n}; "
+        }
+    ]
+}

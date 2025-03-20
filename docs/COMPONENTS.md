@@ -11,6 +11,7 @@ The Kanban board interface has been redesigned to provide a more professional an
 - Refined typography with clear hierarchy
 - Subtle shadows and borders for depth
 - Improved contrast and readability
+- Enhanced animations and transitions during drag operations
 
 #### Layout
 - Summary statistics dashboard showing key metrics
@@ -25,20 +26,25 @@ The Kanban board interface has been redesigned to provide a more professional an
 - Status indicators
 - Last activity timestamps
 - Value prominence
+- Improved drag handles and feedback
 
 #### Functionality
-- Drag-and-drop between columns
+- Improved drag-and-drop between columns using @hello-pangea/dnd
+- Smoother animations during drag operations
+- Better accessibility features
 - Quick filters and search
 - Column customization
 - Lead management actions
+- Optimistic UI updates
 
 ### Components
 
 #### LeadsKanban
 - Main container for the Kanban board
-- Manages drag-and-drop functionality
-- Handles lead filtering and sorting
+- Uses @hello-pangea/dnd for drag-and-drop functionality
+- Manages lead filtering and sorting
 - Displays summary statistics
+- Handles optimistic UI updates
 
 #### KanbanColumn
 - Individual column component
@@ -52,6 +58,66 @@ The Kanban board interface has been redesigned to provide a more professional an
 - Quick action buttons
 - Status and value indicators
 - Last activity timestamp
+- Uses Draggable component for drag interactions
+
+### Technical Improvements
+
+1. **Drag and Drop**
+   - Migrated from dnd-kit to @hello-pangea/dnd
+   - Improved animation quality and feel
+   - Better drag previews
+   - Enhanced accessibility
+   - Reduced code complexity
+
+2. **Performance**
+   - Optimized rendering during drag operations
+   - Reduced unnecessary re-renders
+   - Improved position calculations
+   - Better handling of problematic data
+
+3. **Architecture**
+   - SSR-compatible via dynamic imports
+   - Cleaner component structure
+   - Better TypeScript integration
+   - Improved error handling
+
+### Component Structure
+
+The Kanban implementation uses a layered approach:
+
+1. **leads-kanban.tsx**
+   - Simple re-export that preserves the original component name
+   - Maintains compatibility with existing imports
+
+2. **kanban-wrapper.tsx**
+   - Dynamic import wrapper 
+   - Disables SSR for drag and drop components
+   - Solves React/TypeScript compatibility issues
+
+3. **leads-kanban-impl.tsx**
+   - Actual implementation
+   - Uses @hello-pangea/dnd directly
+   - Manages all UI and data state
+
+### Lead Management
+
+The Kanban implementation integrates with several core services:
+
+1. **getLeads()**
+   - Fetches leads from Firestore
+   - Handled in useEffect on component mount
+
+2. **updateLead()**
+   - Updates a lead's status when moved between columns
+   - Called after optimistic UI updates
+
+3. **updateLeadPositions()**
+   - Batch updates lead positions within a column
+   - Called after drag operations complete
+
+4. **identifyProblematicLeads()**
+   - Finds leads with data issues
+   - Prevents problematic leads from being dragged
 
 ### Improvements
 

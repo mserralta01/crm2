@@ -143,7 +143,7 @@ export default function DashboardPage() {
                     <div key={lead.id} className="flex items-center space-x-3">
                       <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                       <div>
-                        <p className="text-sm font-medium">{lead.name} ({lead.company})</p>
+                        <p className="text-sm font-medium">{lead.firstName} {lead.lastName} ({lead.company})</p>
                         <p className="text-xs text-muted-foreground">
                           Last activity: {getRelativeTimeString(lead.lastActivity)}
                         </p>

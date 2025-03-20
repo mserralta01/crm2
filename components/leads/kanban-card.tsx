@@ -1,8 +1,6 @@
 "use client";
 
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { 
@@ -12,7 +10,8 @@ import {
   Calendar,
   Building2,
   DollarSign,
-  Clock
+  Clock,
+  GripVertical
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -20,38 +19,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-interface Lead {
-  id: number;
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  status: string;
-  value: string;
-}
+import React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Avatar } from '@/components/ui/avatar';
+import { formatDistanceToNow } from 'date-fns';
+import { Lead } from '@/data/leads';
+import { formatCurrency } from '@/lib/utils';
 
 interface KanbanCardProps {
   id: string;
   lead: Lead;
   columnColor: string;
+  isDragging?: boolean;
 }
 
-export function KanbanCard({ id, lead, columnColor }: KanbanCardProps) {
+// Optimized KanbanCard component with professional design
+export function KanbanCard({ id, lead, columnColor, isDragging }: KanbanCardProps) {
   const router = useRouter();
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
+  
+  // Extract the color from the gradient string for the avatar
+  const colorClass = columnColor.split(' ')[1].replace('from-', 'bg-');
+  
+  // Compute name from firstName and lastName
+  const name = lead.firstName && lead.lastName 
+    ? `${lead.firstName} ${lead.lastName}`
+    : lead.firstName || lead.lastName || 'Unnamed Lead';
+  
   const handleCardClick = (e: React.MouseEvent) => {
     // Prevent navigation when clicking on interactive elements
     if (
@@ -61,10 +54,7 @@ export function KanbanCard({ id, lead, columnColor }: KanbanCardProps) {
       return;
     }
     
-    // Add console log for debugging
-    console.log('Card clicked, navigating to:', `/dashboard/leads/${lead.id}`);
-    
-    // Navigate to lead detail page
+    // Navigate to lead detail page using the ID
     router.push(`/dashboard/leads/${lead.id}`);
   };
 
@@ -79,71 +69,65 @@ export function KanbanCard({ id, lead, columnColor }: KanbanCardProps) {
   };
 
   return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      className="p-4 bg-card hover:shadow-md transition-shadow border border-slate-200 cursor-pointer select-none"
+    <Card 
+      className={`shadow-sm hover:shadow-md transition-shadow bg-white group cursor-pointer touch-manipulation select-none ${
+        isDragging ? 'opacity-70 shadow-lg' : ''
+      }`}
       onClick={handleCardClick}
-      {...attributes}
-      {...listeners}
     >
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex-1">
-          <h4 className="font-medium text-base mb-1">{lead.name}</h4>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Building2 className="w-4 h-4 mr-1" />
-            {lead.company}
+      <div className="absolute top-0 left-0 w-6 h-full bg-transparent opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+        <GripVertical className="h-5 w-5 text-muted-foreground/50" />
+      </div>
+      <CardContent className="p-4 pt-4 pl-8">
+        <div className="flex justify-between items-start mb-2">
+          <div className="flex items-center">
+            <Avatar className="h-8 w-8 mr-2">
+              <div className={`h-full w-full flex items-center justify-center ${colorClass} text-white font-medium`}>
+                {name.charAt(0) || '?'}
+              </div>
+            </Avatar>
+            <div>
+              <h3 className="font-semibold text-sm">{name}</h3>
+              <p className="text-xs text-muted-foreground">{lead.company}</p>
+            </div>
           </div>
+          <Badge variant="outline" className="bg-muted/30 text-xs">
+            {formatCurrency(lead.value || 0)}
+          </Badge>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => router.push(`/dashboard/leads/${lead.id}`)}>
-              View Details
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push(`/dashboard/leads/${lead.id}?edit=true`)}>
-              Edit Lead
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+        
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground mt-3">
+          {lead.email && (
+            <div className="flex items-center gap-2">
+              <Mail className="h-3 w-3" />
+              <span className="truncate max-w-[180px]">{lead.email}</span>
+            </div>
+          )}
+          {lead.phone && (
+            <div className="flex items-center gap-2">
+              <Phone className="h-3 w-3" />
+              <span>{lead.phone}</span>
+            </div>
+          )}
+        </div>
+      </CardContent>
       
-      <div className="flex items-center space-x-2 mb-3">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-8 w-8 hover:bg-slate-100"
-          title={lead.email}
-          onClick={handleEmailClick}
-        >
-          <Mail className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-8 w-8 hover:bg-slate-100"
-          title={lead.phone}
-          onClick={handlePhoneClick}
-        >
-          <Phone className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <div className="flex justify-between items-center text-sm">
-        <div className="flex items-center text-emerald-600 font-medium">
-          <DollarSign className="w-4 h-4 mr-1" />
-          {lead.value}
+      <CardFooter className="px-4 py-2 pl-8 border-t flex justify-between text-xs text-muted-foreground">
+        <div className="flex items-center">
+          <Clock className="h-3 w-3 mr-1" />
+          <span>
+            {lead.lastActivity 
+              ? formatDistanceToNow(new Date(lead.lastActivity), { addSuffix: true })
+              : 'No activity'}
+          </span>
         </div>
-        <div className="flex items-center text-muted-foreground">
-          <Clock className="w-4 h-4 mr-1" />
-          <span>2 days ago</span>
-        </div>
-      </div>
+        <button 
+          className="hover:bg-muted/50 p-1 rounded-full"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MoreHorizontal className="h-3 w-3" />
+        </button>
+      </CardFooter>
     </Card>
   );
 }
