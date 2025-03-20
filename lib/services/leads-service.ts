@@ -156,7 +156,7 @@ export async function getLeads(): Promise<Lead[]> {
         // Log any lead without a valid position for debugging
         if (leadData.position === undefined || isNaN(leadData.position)) {
           leadsWithoutPosition++;
-          console.log(`Lead ${leadData.id} (${leadData.name}) has no valid position`);
+          console.log(`Lead ${leadData.id} has no valid position`);
         }
         
         leads.push(leadData);
@@ -271,9 +271,21 @@ export async function createLead(leadData: Omit<Lead, 'id' | 'numericId'>): Prom
     // Generate a timestamp ID for the lead
     const timestampId = Date.now();
     
+    // Ensure tags is never undefined
+    const tags = leadData.tags || [];
+    
+    // Clean the data for Firestore - replace undefined with null or default values
+    const cleanedData = { ...leadData };
+    
+    // Handle undefined values
+    if (cleanedData.tags === undefined) cleanedData.tags = [];
+    if (cleanedData.customFields === undefined) cleanedData.customFields = [];
+    if (cleanedData.socialProfiles === undefined) cleanedData.socialProfiles = {};
+    
     // Prepare the lead with Firestore-compatible data
     const firestoreLead = {
-      ...leadData,
+      ...cleanedData,
+      tags,
       position,
       numericId: timestampId, // Set a numeric ID
       createdAt: Timestamp.fromDate(new Date(now)),
@@ -348,9 +360,23 @@ export async function updateLead(id: string, leadData: Partial<Lead>): Promise<v
     // Get current data to log changes
     const currentData = docSnap.data();
     
+    // Clean up the data for Firestore (remove undefined values)
+    const cleanedData: Record<string, any> = {};
+    for (const [key, value] of Object.entries(leadData)) {
+      // Skip undefined values - Firestore doesn't accept them
+      if (value === undefined) continue;
+      
+      // Handle tags specifically - ensure it's never undefined
+      if (key === 'tags' && value === undefined) {
+        cleanedData[key] = [];
+      } else {
+        cleanedData[key] = value;
+      }
+    }
+    
     // Update the last activity timestamp and provided fields
     const updateData = {
-      ...leadData,
+      ...cleanedData,
       lastActivity: Timestamp.now()
     };
     
