@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -54,13 +54,27 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface AddLeadDialogProps {
-  open: boolean;
-  onClose: () => void;
+  open?: boolean;
+  onClose?: () => void;
   onLeadAdded: (newLead: Lead) => void;
+  children?: ReactNode;
 }
 
-export function AddLeadDialog({ open, onClose, onLeadAdded }: AddLeadDialogProps) {
+export function AddLeadDialog({ open: controlledOpen, onClose, onLeadAdded, children }: AddLeadDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isControlled = controlledOpen !== undefined;
+  const isOpen = isControlled ? controlledOpen : internalOpen;
+
+  const handleOpenChange = (newOpenState: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(newOpenState);
+    }
+    if (!newOpenState && onClose) {
+      onClose();
+    }
+  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -116,7 +130,7 @@ export function AddLeadDialog({ open, onClose, onLeadAdded }: AddLeadDialogProps
 
       // Reset form and close dialog
       form.reset();
-      onClose();
+      handleOpenChange(false);
       
       // Notify parent component
       const newLead: Lead = {
@@ -159,7 +173,12 @@ export function AddLeadDialog({ open, onClose, onLeadAdded }: AddLeadDialogProps
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      {children && (
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle>Add New Lead</DialogTitle>

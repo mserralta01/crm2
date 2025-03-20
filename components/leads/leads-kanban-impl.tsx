@@ -42,7 +42,11 @@ const availableColors = [
   { id: 'gray', gradient: 'from-gray-600 to-gray-500' },
 ];
 
-export default function LeadsKanbanImpl() {
+interface LeadsKanbanImplProps {
+  searchTerm?: string;
+}
+
+export default function LeadsKanbanImpl({ searchTerm = "" }: LeadsKanbanImplProps) {
   const [columns, setColumns] = useState(initialColumns);
   const [items, setItems] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +54,20 @@ export default function LeadsKanbanImpl() {
   const [pendingUpdates, setPendingUpdates] = useState<Record<string, Partial<Lead>>>({});
   const [problematicLeads, setProblematicLeads] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Filter leads based on search term
+  const filterLeads = (leads: Lead[]) => {
+    if (!searchTerm) return leads;
+    
+    const term = searchTerm.toLowerCase();
+    return leads.filter(lead => 
+      lead.firstName.toLowerCase().includes(term) ||
+      lead.lastName.toLowerCase().includes(term) ||
+      lead.company.toLowerCase().includes(term) ||
+      lead.email.toLowerCase().includes(term) ||
+      lead.phone.toLowerCase().includes(term)
+    );
+  };
 
   // Function to fetch leads data
   const fetchLeads = async () => {
@@ -59,12 +77,14 @@ export default function LeadsKanbanImpl() {
       const problemLeads = await identifyProblematicLeads();
       setProblematicLeads(problemLeads);
       
-      // Sort leads by position within columns
-      const sortedLeads = sortLeadsByPositionInColumns(fetchedLeads);
-      setItems(sortedLeads);
-      console.log('Leads loaded successfully:', sortedLeads.length);
+      // Apply any pending updates and sort by position
+      const updatedLeads = applyPendingUpdates(fetchedLeads, pendingUpdates);
+      const sortedLeads = sortLeadsByPositionInColumns(updatedLeads);
+      
+      // Filter leads based on search term
+      setItems(filterLeads(sortedLeads));
     } catch (error) {
-      console.error("Error fetching leads:", error);
+      console.error('Error fetching leads:', error);
     } finally {
       setIsLoading(false);
     }
@@ -74,6 +94,14 @@ export default function LeadsKanbanImpl() {
   useEffect(() => {
     fetchLeads();
   }, []);
+
+  // Apply search filter when searchTerm changes
+  useEffect(() => {
+    if (items.length > 0) {
+      const sortedLeads = sortLeadsByPositionInColumns(items);
+      setItems(filterLeads(sortedLeads));
+    }
+  }, [searchTerm]);
 
   // Sort leads by position within their columns
   const sortLeadsByPositionInColumns = (leads: Lead[]) => {

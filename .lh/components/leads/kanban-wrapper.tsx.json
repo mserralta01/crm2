@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 3,
             "patches": [
                 {
                     "date": 1742495474239,
@@ -16,6 +16,10 @@
                 {
                     "date": 1742496301683,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,12 +3,9 @@\n import dynamic from 'next/dynamic';\n \n // Import the Kanban component but disable SSR\n const LeadsKanbanWithNoSSR = dynamic(\n-  () => import('./leads-kanban-impl').then(mod => {\n-    // This ensures the module is only loaded on the client side\n-    return { default: mod.default }\n-  }),\n+  () => import('./leads-kanban-impl'),\n   { ssr: false }\n );\n \n export function LeadsKanban() {\n"
+                },
+                {
+                    "date": 1742499043135,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,7 +7,11 @@\n   () => import('./leads-kanban-impl'),\n   { ssr: false }\n );\n \n-export function LeadsKanban() {\n-  return <LeadsKanbanWithNoSSR />;\n+interface LeadsKanbanProps {\n+  searchTerm?: string;\n+}\n+\n+export function LeadsKanban({ searchTerm = \"\" }: LeadsKanbanProps) {\n+  return <LeadsKanbanWithNoSSR searchTerm={searchTerm} />;\n } \n\\ No newline at end of file\n"
                 }
             ],
             "date": 1742495474239,

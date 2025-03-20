@@ -8,6 +8,10 @@ const LeadsKanbanWithNoSSR = dynamic(
   { ssr: false }
 );
 
-export function LeadsKanban() {
-  return <LeadsKanbanWithNoSSR />;
+interface LeadsKanbanProps {
+  searchTerm?: string;
+}
+
+export function LeadsKanban({ searchTerm = "" }: LeadsKanbanProps) {
+  return <LeadsKanbanWithNoSSR searchTerm={searchTerm} />;
 } 

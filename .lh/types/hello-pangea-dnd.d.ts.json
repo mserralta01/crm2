@@ -1,0 +1,18 @@
+{
+    "sourceFile": "types/hello-pangea-dnd.d.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1742499344637,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1742499344637,
+            "name": "Commit-0",
+            "content": "import React from 'react';\n\ndeclare module '@hello-pangea/dnd' {\n  export interface DroppableProps {\n    children: (provided: DroppableProvided, snapshot: DroppableStateSnapshot) => React.ReactNode;\n    droppableId: string;\n    type?: string;\n    mode?: 'standard' | 'virtual';\n    isDropDisabled?: boolean;\n    isCombineEnabled?: boolean;\n    direction?: 'horizontal' | 'vertical';\n    ignoreContainerClipping?: boolean;\n    renderClone?: any;\n    getContainerForClone?: () => HTMLElement;\n  }\n\n  export interface DroppableProvided {\n    innerRef: (element: HTMLElement | null) => void;\n    droppableProps: {\n      'data-rbd-droppable-id': string;\n      'data-rbd-droppable-context-id': string;\n    };\n    placeholder: React.ReactNode;\n  }\n\n  export interface DroppableStateSnapshot {\n    isDraggingOver: boolean;\n    draggingOverWith?: string;\n    draggingFromThisWith?: string;\n    isUsingPlaceholder: boolean;\n  }\n\n  export const Droppable: React.FC<DroppableProps>;\n} "
+        }
+    ]
+}
