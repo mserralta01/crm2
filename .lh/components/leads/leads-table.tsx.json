@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1741292594334,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1742497178661,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -44,13 +44,14 @@\n \n     fetchLeads();\n   }, []);\n \n-  const filteredLeads = leads.filter(lead => \n-    lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||\n-    lead.company.toLowerCase().includes(searchTerm.toLowerCase()) ||\n-    lead.email.toLowerCase().includes(searchTerm.toLowerCase())\n-  );\n+  const filteredLeads = leads.filter(lead => {\n+    const fullName = `${lead.firstName} ${lead.lastName}`.toLowerCase();\n+    return fullName.includes(searchTerm.toLowerCase()) ||\n+      lead.company.toLowerCase().includes(searchTerm.toLowerCase()) ||\n+      lead.email.toLowerCase().includes(searchTerm.toLowerCase());\n+  });\n \n   if (loading) {\n     return <div className=\"py-10 text-center\">Loading leads...</div>;\n   }\n@@ -82,9 +83,9 @@\n           filteredLeads.map((lead) => (\n             <TableRow key={lead.id}>\n               <TableCell className=\"font-medium\">\n                 <Link href={`/dashboard/leads/${lead.id}`} className=\"hover:underline\">\n-                  {lead.name}\n+                  {lead.firstName} {lead.lastName}\n                 </Link>\n               </TableCell>\n               <TableCell>{lead.company}</TableCell>\n               <TableCell>\n"
                 }
             ],
             "date": 1741292594334,

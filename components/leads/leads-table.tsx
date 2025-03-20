@@ -45,11 +45,12 @@ export function LeadsTable({ searchTerm }: { searchTerm: string }) {
     fetchLeads();
   }, []);
 
-  const filteredLeads = leads.filter(lead => 
-    lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLeads = leads.filter(lead => {
+    const fullName = `${lead.firstName} ${lead.lastName}`.toLowerCase();
+    return fullName.includes(searchTerm.toLowerCase()) ||
+      lead.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.email.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   if (loading) {
     return <div className="py-10 text-center">Loading leads...</div>;
@@ -83,7 +84,7 @@ export function LeadsTable({ searchTerm }: { searchTerm: string }) {
             <TableRow key={lead.id}>
               <TableCell className="font-medium">
                 <Link href={`/dashboard/leads/${lead.id}`} className="hover:underline">
-                  {lead.name}
+                  {lead.firstName} {lead.lastName}
                 </Link>
               </TableCell>
               <TableCell>{lead.company}</TableCell>

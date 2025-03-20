@@ -3,11 +3,19 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1741292484196,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1742497616367,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,7 @@\n import { NextRequest, NextResponse } from 'next/server';\n import { getLeads, createLead } from '@/lib/services/leads-service';\n+import { formatPhoneNumber } from '../../utils/formatters';\n \n // GET /api/leads - Get all leads\n export async function GET(request: NextRequest): Promise<NextResponse> {\n   try {\n@@ -19,8 +20,11 @@\n export async function POST(request: NextRequest): Promise<NextResponse> {\n   try {\n     const data = await request.json();\n     \n+    // Format the phone number\n+    data.phoneNumber = formatPhoneNumber(data.phoneNumber);\n+    \n     // Simple validation\n     if (!data.name || !data.company || !data.email) {\n       return NextResponse.json(\n         { error: 'Missing required fields' },\n"
+                },
+                {
+                    "date": 1742497706027,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,44 @@\n+import { NextRequest, NextResponse } from 'next/server';\n+import { getLeads, createLead } from '@/lib/services/leads-service';\n+\n+// GET /api/leads - Get all leads\n+export async function GET(request: NextRequest): Promise<NextResponse> {\n+  try {\n+    const leads = await getLeads();\n+    return NextResponse.json(leads);\n+  } catch (error: any) {\n+    console.error('Error fetching leads:', error);\n+    return NextResponse.json(\n+      { error: 'Failed to fetch leads', message: error.message },\n+      { status: 500 }\n+    );\n+  }\n+}\n+\n+// POST /api/leads - Create a new lead\n+export async function POST(request: NextRequest): Promise<NextResponse> {\n+  try {\n+    const data = await request.json();\n+    \n+    // Simple validation\n+    if (!data.name || !data.company || !data.email) {\n+      return NextResponse.json(\n+        { error: 'Missing required fields' },\n+        { status: 400 }\n+      );\n+    }\n+    \n+    const leadId = await createLead(data);\n+    \n+    return NextResponse.json(\n+      { message: 'Lead created successfully', id: leadId },\n+      { status: 201 }\n+    );\n+  } catch (error: any) {\n+    console.error('Error creating lead:', error);\n+    return NextResponse.json(\n+      { error: 'Failed to create lead', message: error.message },\n+      { status: 500 }\n+    );\n+  }\n+} \n\\ No newline at end of file\n"
                 }
             ],
             "date": 1741292484196,

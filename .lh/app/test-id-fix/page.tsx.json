@@ -1,0 +1,18 @@
+{
+    "sourceFile": "app/test-id-fix/page.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1742496956926,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1742496956926,
+            "name": "Commit-0",
+            "content": "import { LeadsKanban } from '@/components/leads/leads-kanban';\n\nexport default function TestIdFixPage() {\n  return (\n    <div className=\"container mx-auto\">\n      <h1 className=\"text-2xl font-bold mb-4 p-6\">Leads Kanban Board (ID Fix)</h1>\n      <LeadsKanban />\n    </div>\n  );\n} "
+        }
+    ]
+}

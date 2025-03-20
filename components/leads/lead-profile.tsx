@@ -17,11 +17,26 @@ import {
   Calendar,
   Clock,
   Save,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { format } from 'date-fns';
 import { Lead } from '@/data/leads';
 import { useRouter } from 'next/navigation';
+import { formatPhoneNumber, isValidPhoneNumber } from '@/app/utils/formatters';
+import { updateLead, deleteLead } from '@/lib/services/leads-service';
+import { toast } from '@/hooks/use-toast';
 
 interface LeadProfileProps {
   lead: Lead;
@@ -32,6 +47,7 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
   const router = useRouter();
   const [editedLead, setEditedLead] = useState({ ...lead });
   const [isEditing, setIsEditing] = useState(isEditMode);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     setIsEditing(isEditMode);
@@ -41,13 +57,37 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
     return format(new Date(dateString), 'MMMM d, yyyy');
   };
 
-  const handleSave = () => {
-    // Here you would typically save changes to your backend
-    console.log('Saving lead:', editedLead);
-    
-    // After saving, exit edit mode and navigate to the non-edit view
-    setIsEditing(false);
-    router.push(`/dashboard/leads/${lead.id}`);
+  const handleSave = async () => {
+    try {
+      // Format the phone number before saving
+      const formattedPhone = formatPhoneNumber(editedLead.phone);
+      const updatedLead = {
+        ...editedLead,
+        phone: formattedPhone
+      };
+      
+      // Save changes to the backend
+      await updateLead(lead.id, updatedLead);
+      
+      // Show success message
+      toast({
+        title: "Success",
+        description: "Lead information has been updated.",
+      });
+      
+      // After saving, exit edit mode and navigate to the non-edit view
+      setIsEditing(false);
+      router.push(`/dashboard/leads/${lead.id}`);
+    } catch (error) {
+      console.error('Error updating lead:', error);
+      
+      // Show error message
+      toast({
+        title: "Error",
+        description: "Failed to update lead information. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -62,8 +102,42 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
     setEditedLead(prev => ({ ...prev, [name]: value }));
   };
 
+  const handlePhoneBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (isValidPhoneNumber(value)) {
+      setEditedLead(prev => ({ 
+        ...prev, 
+        phone: formatPhoneNumber(value)
+      }));
+    }
+  };
+
   const handleStatusChange = (value: string) => {
     setEditedLead(prev => ({ ...prev, status: value }));
+  };
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteLead(lead.id);
+      
+      toast({
+        title: "Success",
+        description: "Lead has been deleted successfully.",
+      });
+      
+      // Redirect to leads list after deletion
+      router.push('/dashboard/leads');
+    } catch (error) {
+      console.error('Error deleting lead:', error);
+      
+      toast({
+        title: "Error",
+        description: "Failed to delete the lead. Please try again.",
+        variant: "destructive",
+      });
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -73,11 +147,20 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
         {isEditing ? (
           <div className="space-y-3">
             <div>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="firstName">First Name</Label>
               <Input 
-                id="name" 
-                name="name" 
-                value={editedLead.name} 
+                id="firstName" 
+                name="firstName" 
+                value={editedLead.firstName} 
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input 
+                id="lastName" 
+                name="lastName" 
+                value={editedLead.lastName} 
                 onChange={handleChange}
               />
             </div>
@@ -93,7 +176,7 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
           </div>
         ) : (
           <div>
-            <h2 className="text-2xl font-bold mb-2">{lead.name}</h2>
+            <h2 className="text-2xl font-bold mb-2">{lead.firstName} {lead.lastName}</h2>
             <div className="flex items-center text-muted-foreground">
               <Building2 className="w-4 h-4 mr-2" />
               {lead.company}
@@ -164,7 +247,11 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
                   name="phone"
                   value={editedLead.phone}
                   onChange={handleChange}
+                  onBlur={handlePhoneBlur}
                 />
+                <div className="text-xs text-muted-foreground mt-1">
+                  Format: +1 (###) ###-####
+                </div>
               </div>
             </div>
           ) : (
@@ -200,24 +287,59 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
           </div>
         </div>
 
-        {/* Actions */}
-        {isEditing ? (
-          <div className="flex space-x-2">
-            <Button className="flex-1" onClick={handleSave}>
-              <Save className="w-4 h-4 mr-2" />
-              Save
-            </Button>
-            <Button variant="outline" className="flex-1" onClick={handleCancel}>
-              <X className="w-4 h-4 mr-2" />
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <Button className="w-full">Schedule Meeting</Button>
-            <Button variant="outline" className="w-full">Send Email</Button>
-          </div>
-        )}
+        {/* Action Buttons */}
+        <div className="space-y-3">
+          {isEditing ? (
+            <div className="flex gap-2">
+              <Button className="flex-1" onClick={handleSave}>
+                <Save className="w-4 h-4 mr-2" />
+                Save
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={handleCancel}>
+                <X className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                className="flex-1" 
+                onClick={() => router.push(`/dashboard/leads/${lead.id}?edit=true`)}
+              >
+                Edit Profile
+              </Button>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" disabled={isDeleting}>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Lead
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete the lead
+                      and all associated information.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? "Deleting..." : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
+        </div>
       </div>
     </Card>
   );

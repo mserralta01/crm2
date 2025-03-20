@@ -1,0 +1,22 @@
+{
+    "sourceFile": "app/components/leads/LeadForm.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1742497613661,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1742497705999,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,43 +1,1 @@\n-import { formatPhoneNumber } from '../../utils/formatters';\n-\n-// ... existing code ...\n-\n-// Find the part where you handle form submission or input change\n-const handleSubmit = (e: React.FormEvent) => {\n-  e.preventDefault();\n-  \n-  // Format the phone number before saving\n-  const formattedPhoneNumber = formatPhoneNumber(formData.phoneNumber);\n-  \n-  // Update form data with formatted phone number\n-  const updatedFormData = {\n-    ...formData,\n-    phoneNumber: formattedPhoneNumber\n-  };\n-  \n-  // Continue with your existing save logic using updatedFormData\n-  saveLead(updatedFormData);\n-};\n-\n-// Optionally, you can also format on blur for immediate visual feedback\n-const handlePhoneBlur = (e: React.FocusEvent<HTMLInputElement>) => {\n-  const formattedValue = formatPhoneNumber(e.target.value);\n-  setFormData({\n-    ...formData,\n-    phoneNumber: formattedValue\n-  });\n-};\n-\n-// ... existing code ...\n-\n-// In your form JSX:\n-<input\n-  type=\"tel\"\n-  name=\"phoneNumber\"\n-  value={formData.phoneNumber}\n-  onChange={handleInputChange}\n-  onBlur={handlePhoneBlur}\n-  placeholder=\"+1 (555) 123-4567\"\n-/>\n-\n-// ... existing code ... \n\\ No newline at end of file\n+ \n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1742497613661,
+            "name": "Commit-0",
+            "content": "import { formatPhoneNumber } from '../../utils/formatters';\n\n// ... existing code ...\n\n// Find the part where you handle form submission or input change\nconst handleSubmit = (e: React.FormEvent) => {\n  e.preventDefault();\n  \n  // Format the phone number before saving\n  const formattedPhoneNumber = formatPhoneNumber(formData.phoneNumber);\n  \n  // Update form data with formatted phone number\n  const updatedFormData = {\n    ...formData,\n    phoneNumber: formattedPhoneNumber\n  };\n  \n  // Continue with your existing save logic using updatedFormData\n  saveLead(updatedFormData);\n};\n\n// Optionally, you can also format on blur for immediate visual feedback\nconst handlePhoneBlur = (e: React.FocusEvent<HTMLInputElement>) => {\n  const formattedValue = formatPhoneNumber(e.target.value);\n  setFormData({\n    ...formData,\n    phoneNumber: formattedValue\n  });\n};\n\n// ... existing code ...\n\n// In your form JSX:\n<input\n  type=\"tel\"\n  name=\"phoneNumber\"\n  value={formData.phoneNumber}\n  onChange={handleInputChange}\n  onBlur={handlePhoneBlur}\n  placeholder=\"+1 (555) 123-4567\"\n/>\n\n// ... existing code ... "
+        }
+    ]
+}

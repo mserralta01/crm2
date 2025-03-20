@@ -1,6 +1,8 @@
 export interface Lead {
-  id: number;
-  name: string;
+  id: string;
+  numericId: number;
+  firstName: string;
+  lastName: string;
   company: string;
   email: string;
   phone: string;
