@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 3,
+            "activePatchIndex": 6,
             "patches": [
                 {
                     "date": 1741293593484,
@@ -20,6 +20,18 @@
                 {
                     "date": 1742497127724,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,9 @@\n export interface Lead {\n   id: string;\n   numericId: number;\n-  name: string;\n+  firstName: string;\n+  lastName: string;\n   company: string;\n   email: string;\n   phone: string;\n   status: string;\n"
+                },
+                {
+                    "date": 1742501030376,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,8 +10,23 @@\n   value: string;\n   position: number;\n   createdAt: string;\n   lastActivity: string;\n+  // Address fields\n+  address?: string;\n+  city?: string;\n+  state?: string;\n+  zipCode?: string;\n+  country?: string;\n+  // Lead qualification fields\n+  score?: string;\n+  interest?: string;\n+  budget?: string;\n+  timeframe?: string;\n+  source?: string;\n+  nextSteps?: string;\n+  lastTouchpoint?: string;\n+  tags?: string[];\n   activities: {\n     calls: Activity[];\n     notes: Activity[];\n     emails: Activity[];\n"
+                },
+                {
+                    "date": 1742501165704,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,23 +10,8 @@\n   value: string;\n   position: number;\n   createdAt: string;\n   lastActivity: string;\n-  // Address fields\n-  address?: string;\n-  city?: string;\n-  state?: string;\n-  zipCode?: string;\n-  country?: string;\n-  // Lead qualification fields\n-  score?: string;\n-  interest?: string;\n-  budget?: string;\n-  timeframe?: string;\n-  source?: string;\n-  nextSteps?: string;\n-  lastTouchpoint?: string;\n-  tags?: string[];\n   activities: {\n     calls: Activity[];\n     notes: Activity[];\n     emails: Activity[];\n"
+                },
+                {
+                    "date": 1742501466870,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,8 +10,47 @@\n   value: string;\n   position: number;\n   createdAt: string;\n   lastActivity: string;\n+  \n+  // Address information\n+  address?: string;\n+  city?: string;\n+  state?: string;\n+  zipCode?: string;\n+  country?: string;\n+  \n+  // Lead source information\n+  source?: string;\n+  referredBy?: string;\n+  campaign?: string;\n+  \n+  // Tags for better organization\n+  tags?: string[];\n+  \n+  // Custom fields for flexible data collection\n+  customFields?: Array<{key: string, value: string}>;\n+  \n+  // Social media profiles\n+  socialProfiles?: {\n+    linkedin?: string;\n+    twitter?: string;\n+    facebook?: string;\n+    instagram?: string;\n+  };\n+  \n+  // Business details\n+  website?: string;\n+  industry?: string;\n+  companySize?: string;\n+  annualRevenue?: string;\n+  \n+  // Lead preferences and requirements\n+  budget?: string;\n+  timeline?: string;\n+  preferredContact?: string;\n+  keyRequirements?: string;\n+  \n   activities: {\n     calls: Activity[];\n     notes: Activity[];\n     emails: Activity[];\n"
                 }
             ],
             "date": 1741293593484,

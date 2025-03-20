@@ -113,6 +113,9 @@ export function AddLeadDialog({ open: controlledOpen, onClose, onLeadAdded, chil
         position: 0, // Will be calculated in createLead function
         createdAt: now,
         lastActivity: now,
+        tags: [],
+        customFields: [],
+        socialProfiles: {},
         activities: {
           calls: [],
           notes: [],
@@ -146,6 +149,9 @@ export function AddLeadDialog({ open: controlledOpen, onClose, onLeadAdded, chil
         position: 0,
         createdAt: now,
         lastActivity: now,
+        tags: [],
+        customFields: [],
+        socialProfiles: {},
         activities: {
           calls: [],
           notes: [],

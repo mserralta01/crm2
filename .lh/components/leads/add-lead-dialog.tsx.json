@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 10,
+            "activePatchIndex": 12,
             "patches": [
                 {
                     "date": 1741293845478,
@@ -48,6 +48,14 @@
                 {
                     "date": 1742498886607,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n \"use client\";\n \n-import { useState } from 'react';\n+import { useState, ReactNode } from 'react';\n import { useForm } from 'react-hook-form';\n import { zodResolver } from '@hookform/resolvers/zod';\n import * as z from 'zod';\n import { \n@@ -53,16 +53,30 @@\n \n type FormValues = z.infer<typeof formSchema>;\n \n interface AddLeadDialogProps {\n-  open: boolean;\n-  onClose: () => void;\n+  open?: boolean;\n+  onClose?: () => void;\n   onLeadAdded: (newLead: Lead) => void;\n+  children?: ReactNode;\n }\n \n-export function AddLeadDialog({ open, onClose, onLeadAdded }: AddLeadDialogProps) {\n+export function AddLeadDialog({ open: controlledOpen, onClose, onLeadAdded, children }: AddLeadDialogProps) {\n+  const [internalOpen, setInternalOpen] = useState(false);\n   const [isSubmitting, setIsSubmitting] = useState(false);\n \n+  const isControlled = controlledOpen !== undefined;\n+  const isOpen = isControlled ? controlledOpen : internalOpen;\n+\n+  const handleOpenChange = (newOpenState: boolean) => {\n+    if (!isControlled) {\n+      setInternalOpen(newOpenState);\n+    }\n+    if (!newOpenState && onClose) {\n+      onClose();\n+    }\n+  };\n+\n   const form = useForm<FormValues>({\n     resolver: zodResolver(formSchema),\n     defaultValues: {\n       firstName: \"\",\n@@ -115,9 +129,9 @@\n       });\n \n       // Reset form and close dialog\n       form.reset();\n-      onClose();\n+      handleOpenChange(false);\n       \n       // Notify parent component\n       const newLead: Lead = {\n         id: \"\",\n@@ -158,9 +172,14 @@\n     }\n   }\n \n   return (\n-    <Dialog open={open} onOpenChange={onClose}>\n+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>\n+      {children && (\n+        <DialogTrigger asChild>\n+          {children}\n+        </DialogTrigger>\n+      )}\n       <DialogContent className=\"sm:max-w-[525px]\">\n         <DialogHeader>\n           <DialogTitle>Add New Lead</DialogTitle>\n           <DialogDescription>\n"
+                },
+                {
+                    "date": 1742502876522,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -112,8 +112,11 @@\n         phone: formattedPhone,\n         position: 0, // Will be calculated in createLead function\n         createdAt: now,\n         lastActivity: now,\n+        tags: [],\n+        customFields: [],\n+        socialProfiles: {},\n         activities: {\n           calls: [],\n           notes: [],\n           emails: [],\n"
+                },
+                {
+                    "date": 1742502886211,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -148,8 +148,11 @@\n         value: values.value,\n         position: 0,\n         createdAt: now,\n         lastActivity: now,\n+        tags: [],\n+        customFields: [],\n+        socialProfiles: {},\n         activities: {\n           calls: [],\n           notes: [],\n           emails: [],\n"
                 }
             ],
             "date": 1741293845478,

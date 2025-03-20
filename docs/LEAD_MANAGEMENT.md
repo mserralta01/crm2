@@ -17,8 +17,10 @@ The Lead data model is defined in `data/leads.ts` and includes:
 
 ```typescript
 export interface Lead {
-  id: number;
-  name: string;
+  id: string;
+  numericId: number;
+  firstName: string;
+  lastName: string;
   company: string;
   email: string;
   phone: string;
@@ -27,6 +29,45 @@ export interface Lead {
   position: number;
   createdAt: string;
   lastActivity: string;
+  
+  // Address information
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+  
+  // Lead source information
+  source?: string;
+  referredBy?: string;
+  campaign?: string;
+  
+  // Tags for better organization
+  tags?: string[];
+  
+  // Custom fields for flexible data collection
+  customFields?: Array<{key: string, value: string}>;
+  
+  // Social media profiles
+  socialProfiles?: {
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+    instagram?: string;
+  };
+  
+  // Business details
+  website?: string;
+  industry?: string;
+  companySize?: string;
+  annualRevenue?: string;
+  
+  // Lead preferences and requirements
+  budget?: string;
+  timeline?: string;
+  preferredContact?: string;
+  keyRequirements?: string;
+  
   activities: {
     calls: Activity[];
     notes: Activity[];
@@ -37,7 +78,7 @@ export interface Lead {
 }
 ```
 
-This model is used throughout the application to ensure type safety and consistent data structure.
+This enhanced model is used throughout the application to ensure type safety and consistent data structure, providing rich information for small business owners, internet marketers, and coaches.
 
 ### Firestore Integration
 
@@ -46,6 +87,7 @@ Lead data is stored in Firestore with the following considerations:
 - Timestamps are stored as Firestore Timestamp objects
 - Activities are stored as nested collections
 - Position field is used for Kanban view ordering
+- Optional fields are omitted when empty to optimize storage
 
 ## Views and Interfaces
 
@@ -89,9 +131,15 @@ The Detail View (`components/leads/lead-page-client.tsx`) provides a comprehensi
 ```
 /dashboard/leads/[id]/
 ├── Lead Profile Section (Left)
-│   ├── Basic Information
-│   ├── Contact Details
+│   ├── Basic Information (Name, Company)
 │   ├── Status & Value
+│   ├── Contact Information (Email, Phone, Address)
+│   ├── Lead Source (Source, Referral, Campaign)
+│   ├── Tags
+│   ├── Social Profiles
+│   ├── Business Information (Website, Industry, Company Size, Revenue)
+│   ├── Preferences & Requirements (Budget, Timeline, Contact Method)
+│   ├── Custom Fields
 │   ├── Timeline
 │   └── Action Buttons (Edit/Delete)
 └── Activities Section (Right)
@@ -132,7 +180,7 @@ The Detail View (`components/leads/lead-page-client.tsx`) provides a comprehensi
 ### Lead Profile Section
 
 - **Basic Information**
-  - Lead name
+  - Lead name (first and last name)
   - Company name
   - Status badge
   - Deal value
@@ -140,7 +188,40 @@ The Detail View (`components/leads/lead-page-client.tsx`) provides a comprehensi
 - **Contact Information**
   - Email address with click-to-email
   - Phone number with click-to-call
-  - Company details
+  - Complete address (street, city, state, zip, country)
+  - Visual map pin icon for address display
+
+- **Lead Source**
+  - Source type (Website, Referral, Social Media, etc.)
+  - Referral contact information
+  - Marketing campaign tracking
+
+- **Tags**
+  - Customizable tag system
+  - Visual tag badges
+  - Comma-separated input for easy management
+
+- **Social Profiles**
+  - LinkedIn, Twitter, Facebook, Instagram links
+  - Clickable social media buttons with icons
+  - Consistent display of profile information
+
+- **Business Information**
+  - Website link with click-to-visit
+  - Industry classification
+  - Company size
+  - Annual revenue range
+
+- **Preferences & Requirements**
+  - Budget range
+  - Project timeline expectations
+  - Preferred contact method
+  - Detailed requirements in text format
+
+- **Custom Fields**
+  - Flexible key-value pair system
+  - Add/remove custom fields as needed
+  - Dynamic form handling
 
 - **Timeline**
   - Creation date
