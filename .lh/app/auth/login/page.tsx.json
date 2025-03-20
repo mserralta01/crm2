@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1741892970913,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1742500219829,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -60,9 +60,9 @@\n       transition={{ duration: 0.6 }}\n       className=\"space-y-8\"\n     >\n       <div>\n-        <h2 className=\"text-3xl font-bold tracking-tight\">Welcome back</h2>\n+        <h2 className=\"text-3xl font-bold tracking-tight\">Welcome to Groove CRM</h2>\n         <p className=\"text-muted-foreground mt-2\">\n           Enter your credentials to access your account\n         </p>\n       </div>\n"
                 }
             ],
             "date": 1741892970913,

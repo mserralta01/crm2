@@ -61,7 +61,7 @@ export default function LoginPage() {
       className="space-y-8"
     >
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Welcome back</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Welcome to Groove CRM</h2>
         <p className="text-muted-foreground mt-2">
           Enter your credentials to access your account
         </p>
