@@ -115,6 +115,44 @@ const leadConverter: FirestoreDataConverter<Lead> = {
       position: data.position || 0, // Include position with default
       createdAt: safeTimestampToISOString(data.createdAt),
       lastActivity: safeTimestampToISOString(data.lastActivity),
+      
+      // Pipeline tracking
+      statusUpdatedAt: data.statusUpdatedAt ? safeTimestampToISOString(data.statusUpdatedAt) : undefined,
+      daysInStage: data.daysInStage || {},
+      
+      // Address fields - preserve exactly as stored
+      address: data.address,
+      city: data.city,
+      state: data.state,
+      zipCode: data.zipCode, 
+      country: data.country,
+      
+      // Lead source information
+      source: data.source,
+      referredBy: data.referredBy,
+      campaign: data.campaign,
+      
+      // Tags - ensure it's an array
+      tags: Array.isArray(data.tags) ? data.tags : (data.tags ? [data.tags] : []),
+      
+      // Custom fields
+      customFields: data.customFields || [],
+      
+      // Social profiles
+      socialProfiles: data.socialProfiles || {},
+      
+      // Business details
+      website: data.website,
+      industry: data.industry,
+      companySize: data.companySize,
+      annualRevenue: data.annualRevenue,
+      
+      // Lead preferences
+      budget: data.budget,
+      timeline: data.timeline,
+      preferredContact: data.preferredContact,
+      keyRequirements: data.keyRequirements,
+      
       activities: {
         calls: Array.isArray(data.activities?.calls) 
           ? data.activities.calls.map(safeActivityDateToISOString) 
@@ -360,6 +398,22 @@ export async function updateLead(id: string, leadData: Partial<Lead>): Promise<v
     // Get current data to log changes
     const currentData = docSnap.data();
     
+    // Special handling for status changes
+    if (leadData.status && leadData.status !== currentData.status) {
+      // If status is changing but statusUpdatedAt wasn't provided, add it
+      if (!leadData.statusUpdatedAt) {
+        // @ts-ignore - Timestamp will be converted to string by Firestore converter
+        leadData.statusUpdatedAt = Timestamp.now();
+        
+        // Initialize or update daysInStage for the new status
+        const daysInStage = currentData.daysInStage || {};
+        leadData.daysInStage = {
+          ...daysInStage,
+          [leadData.status]: 0 // Reset days in new stage
+        };
+      }
+    }
+    
     // Clean up the data for Firestore (remove undefined values)
     const cleanedData: Record<string, any> = {};
     for (const [key, value] of Object.entries(leadData)) {
@@ -369,7 +423,12 @@ export async function updateLead(id: string, leadData: Partial<Lead>): Promise<v
       // Handle tags specifically - ensure it's never undefined
       if (key === 'tags' && value === undefined) {
         cleanedData[key] = [];
-      } else {
+      }
+      // Convert Date strings to Timestamps for date fields
+      else if (key === 'statusUpdatedAt' && typeof value === 'string') {
+        cleanedData[key] = Timestamp.fromDate(new Date(value));
+      }
+      else {
         cleanedData[key] = value;
       }
     }
@@ -695,5 +754,86 @@ export async function identifyProblematicLeads(): Promise<string[]> {
   } catch (error) {
     console.error('Error identifying problematic leads:', error);
     return []; // Return an empty array on error instead of throwing
+  }
+}
+
+// Update an activity in a lead
+export async function updateLeadActivity(
+  leadId: string,
+  activityType: 'calls' | 'notes' | 'emails' | 'meetings' | 'documents',
+  activityId: number,
+  updates: Partial<any>
+): Promise<void> {
+  try {
+    const leadRef = doc(db, LEADS_COLLECTION, leadId);
+    const leadDoc = await getDoc(leadRef);
+    
+    if (!leadDoc.exists()) {
+      throw new Error(`Lead with ID ${leadId} not found`);
+    }
+    
+    const leadData = leadDoc.data();
+    const activities = leadData?.activities || {};
+    
+    if (!Array.isArray(activities[activityType])) {
+      throw new Error(`Activity type ${activityType} not found or not an array`);
+    }
+    
+    // Find and update the specific activity
+    const updatedActivities = {
+      ...activities,
+      [activityType]: activities[activityType].map((activity: any) => 
+        activity.id === activityId 
+          ? { ...activity, ...updates, date: activity.date } // Keep original date format
+          : activity
+      )
+    };
+    
+    // Update the lead document
+    await updateDoc(leadRef, {
+      activities: updatedActivities,
+      lastActivity: Timestamp.now()
+    });
+  } catch (error) {
+    console.error('Error updating activity:', error);
+    throw error;
+  }
+}
+
+// Delete an activity from a lead
+export async function deleteLeadActivity(
+  leadId: string,
+  activityType: 'calls' | 'notes' | 'emails' | 'meetings' | 'documents',
+  activityId: number
+): Promise<void> {
+  try {
+    const leadRef = doc(db, LEADS_COLLECTION, leadId);
+    const leadDoc = await getDoc(leadRef);
+    
+    if (!leadDoc.exists()) {
+      throw new Error(`Lead with ID ${leadId} not found`);
+    }
+    
+    const leadData = leadDoc.data();
+    const activities = leadData?.activities || {};
+    
+    if (!Array.isArray(activities[activityType])) {
+      throw new Error(`Activity type ${activityType} not found or not an array`);
+    }
+    
+    // Filter out the activity to delete
+    const updatedActivities = {
+      ...activities,
+      [activityType]: activities[activityType].filter((activity: any) => activity.id !== activityId)
+    };
+    
+    // Update the lead document
+    await updateDoc(leadRef, {
+      activities: updatedActivities,
+      lastActivity: Timestamp.now()
+    });
+  } catch (error) {
+    console.error('Error deleting activity:', error);
+    throw error;
   }
 }

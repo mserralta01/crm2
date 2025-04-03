@@ -7,7 +7,7 @@ The Lead Management feature provides a comprehensive interface for sales teams t
 1. Lead Profile (Left Column)
 2. Activities Management (Right Column)
 
-All lead data is persisted in Firebase Firestore, providing real-time storage and retrieval capabilities. See [IMPLEMENTATION.md](./IMPLEMENTATION.md) for implementation details.
+All lead data is persisted in Firebase Firestore, providing real-time storage and retrieval capabilities. See [IMPLEMENTATION.md](./IMPLEMENTATION.md) for implementation details and [NOTE_SYSTEM.md](./NOTE_SYSTEM.md) for details on the enhanced notes system.
 
 ## Data Architecture
 
@@ -383,3 +383,20 @@ The implementation uses the following technologies:
    - Data access controls
    - Activity logging
    - Audit trail
+
+## Activities Management
+
+The Activities Management section has been enhanced with an improved Notes system:
+
+### Enhanced Notes System
+
+The right column features a completely redesigned Notes system with:
+
+- **Pin Functionality**: Pin important notes to keep them at the top of the list
+- **Visual Highlighting**: Pinned notes appear with yellow background for emphasis
+- **Auto-Save**: All notes are automatically saved to the database
+- **Comprehensive History**: Complete view of all customer notes
+- **Rich Text Support**: Preserves formatting and line breaks for better readability
+- **Optimized UI**: Clean, user-friendly interface with intuitive controls
+
+For complete details on the Notes system, see [NOTE_SYSTEM.md](./NOTE_SYSTEM.md).

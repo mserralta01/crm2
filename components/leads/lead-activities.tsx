@@ -11,6 +11,8 @@ import { getLeadById } from '@/lib/services/leads-service';
 import { Lead } from '@/data/leads';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import { NoteSection } from '@/components/leads/note-section';
+import { CallLogSection } from '@/components/leads/call-log-section';
 
 interface LeadActivitiesProps {
   leadId: string;
@@ -54,45 +56,17 @@ export function LeadActivities({ leadId }: LeadActivitiesProps) {
     <div className="mt-6">
       <TabsContent value="phone" className="space-y-4">
         <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-semibold">Call History</h3>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Log New Call
-            </Button>
-          </div>
-          
-          <div className="space-y-4">
-            {lead.activities.calls.length === 0 ? (
-              <div className="text-center p-4 text-muted-foreground">No call history found</div>
-            ) : (
-              lead.activities.calls.map(call => (
-                <Card key={call.id} className="p-4 bg-muted/50">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3">
-                      <div className="mt-1">
-                        <Phone className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{call.title}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">{call.description}</p>
-                        <div className="flex items-center space-x-3 mt-2 text-sm">
-                          <span className="flex items-center">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {call.duration}
-                          </span>
-                          <span className="text-muted-foreground">
-                            {formatDate(call.date)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <Badge variant="outline">{call.status}</Badge>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
+          <CallLogSection 
+            leadId={leadId} 
+            calls={lead.activities.calls} 
+            phoneNumber={lead.phone}
+            onCallAdded={() => {
+              // Refresh lead data when a call is added
+              getLeadById(leadId).then(data => {
+                if (data) setLead(data);
+              }).catch(err => console.error('Error refreshing lead data:', err));
+            }}
+          />
         </Card>
       </TabsContent>
 
@@ -101,26 +75,8 @@ export function LeadActivities({ leadId }: LeadActivitiesProps) {
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold">Notes</h3>
           </div>
-          <div className="space-y-4">
-            <Textarea placeholder="Add a note..." className="min-h-[100px]" />
-            <Button className="w-full">Save Note</Button>
-            
-            <div className="space-y-4 mt-6">
-              {lead.activities.notes.length === 0 ? (
-                <div className="text-center p-4 text-muted-foreground">No notes found</div>
-              ) : (
-                lead.activities.notes.map(note => (
-                  <Card key={note.id} className="p-4 bg-muted/50">
-                    <h4 className="font-medium">{note.title}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">{note.description}</p>
-                    <div className="text-sm text-muted-foreground mt-2">
-                      {formatDate(note.date)}
-                    </div>
-                  </Card>
-                ))
-              )}
-            </div>
-          </div>
+          
+          <NoteSection leadId={leadId} notes={lead.activities.notes} />
         </Card>
       </TabsContent>
 
