@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 39,
+            "activePatchIndex": 40,
             "patches": [
                 {
                     "date": 1741292440169,
@@ -164,6 +164,10 @@
                 {
                     "date": 1742502911883,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -155,9 +155,9 @@\n         \n         // Log any lead without a valid position for debugging\n         if (leadData.position === undefined || isNaN(leadData.position)) {\n           leadsWithoutPosition++;\n-          console.log(`Lead ${leadData.id} (${leadData.name}) has no valid position`);\n+          console.log(`Lead ${leadData.id} has no valid position`);\n         }\n         \n         leads.push(leadData);\n       } catch (conversionError) {\n"
+                },
+                {
+                    "date": 1743706142490,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -114,8 +114,42 @@\n       value: data.value || '$0',\n       position: data.position || 0, // Include position with default\n       createdAt: safeTimestampToISOString(data.createdAt),\n       lastActivity: safeTimestampToISOString(data.lastActivity),\n+      \n+      // Address fields - preserve exactly as stored\n+      address: data.address,\n+      city: data.city,\n+      state: data.state,\n+      zipCode: data.zipCode, \n+      country: data.country,\n+      \n+      // Lead source information\n+      source: data.source,\n+      referredBy: data.referredBy,\n+      campaign: data.campaign,\n+      \n+      // Tags - ensure it's an array\n+      tags: Array.isArray(data.tags) ? data.tags : (data.tags ? [data.tags] : []),\n+      \n+      // Custom fields\n+      customFields: data.customFields || [],\n+      \n+      // Social profiles\n+      socialProfiles: data.socialProfiles || {},\n+      \n+      // Business details\n+      website: data.website,\n+      industry: data.industry,\n+      companySize: data.companySize,\n+      annualRevenue: data.annualRevenue,\n+      \n+      // Lead preferences\n+      budget: data.budget,\n+      timeline: data.timeline,\n+      preferredContact: data.preferredContact,\n+      keyRequirements: data.keyRequirements,\n+      \n       activities: {\n         calls: Array.isArray(data.activities?.calls) \n           ? data.activities.calls.map(safeActivityDateToISOString) \n           : [],\n"
                 }
             ],
             "date": 1741292440169,

@@ -115,6 +115,40 @@ const leadConverter: FirestoreDataConverter<Lead> = {
       position: data.position || 0, // Include position with default
       createdAt: safeTimestampToISOString(data.createdAt),
       lastActivity: safeTimestampToISOString(data.lastActivity),
+      
+      // Address fields - preserve exactly as stored
+      address: data.address,
+      city: data.city,
+      state: data.state,
+      zipCode: data.zipCode, 
+      country: data.country,
+      
+      // Lead source information
+      source: data.source,
+      referredBy: data.referredBy,
+      campaign: data.campaign,
+      
+      // Tags - ensure it's an array
+      tags: Array.isArray(data.tags) ? data.tags : (data.tags ? [data.tags] : []),
+      
+      // Custom fields
+      customFields: data.customFields || [],
+      
+      // Social profiles
+      socialProfiles: data.socialProfiles || {},
+      
+      // Business details
+      website: data.website,
+      industry: data.industry,
+      companySize: data.companySize,
+      annualRevenue: data.annualRevenue,
+      
+      // Lead preferences
+      budget: data.budget,
+      timeline: data.timeline,
+      preferredContact: data.preferredContact,
+      keyRequirements: data.keyRequirements,
+      
       activities: {
         calls: Array.isArray(data.activities?.calls) 
           ? data.activities.calls.map(safeActivityDateToISOString) 
