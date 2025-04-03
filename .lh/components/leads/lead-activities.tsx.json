@@ -3,11 +3,19 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1741890967632,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1743707424254,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,8 +10,9 @@\n import { getLeadById } from '@/lib/services/leads-service';\n import { Lead } from '@/data/leads';\n import { format } from 'date-fns';\n import { Badge } from '@/components/ui/badge';\n+import { NoteSection } from '@/components/notes/note-section';\n \n interface LeadActivitiesProps {\n   leadId: string;\n }\n@@ -100,28 +101,10 @@\n         <Card className=\"p-6\">\n           <div className=\"flex justify-between items-center mb-6\">\n             <h3 className=\"text-lg font-semibold\">Notes</h3>\n           </div>\n-          <div className=\"space-y-4\">\n-            <Textarea placeholder=\"Add a note...\" className=\"min-h-[100px]\" />\n-            <Button className=\"w-full\">Save Note</Button>\n-            \n-            <div className=\"space-y-4 mt-6\">\n-              {lead.activities.notes.length === 0 ? (\n-                <div className=\"text-center p-4 text-muted-foreground\">No notes found</div>\n-              ) : (\n-                lead.activities.notes.map(note => (\n-                  <Card key={note.id} className=\"p-4 bg-muted/50\">\n-                    <h4 className=\"font-medium\">{note.title}</h4>\n-                    <p className=\"text-sm text-muted-foreground mt-1\">{note.description}</p>\n-                    <div className=\"text-sm text-muted-foreground mt-2\">\n-                      {formatDate(note.date)}\n-                    </div>\n-                  </Card>\n-                ))\n-              )}\n-            </div>\n-          </div>\n+          \n+          <NoteSection leadId={leadId} notes={lead.activities.notes} />\n         </Card>\n       </TabsContent>\n \n       <TabsContent value=\"email\" className=\"space-y-4\">\n"
+                },
+                {
+                    "date": 1743707478089,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,9 +10,9 @@\n import { getLeadById } from '@/lib/services/leads-service';\n import { Lead } from '@/data/leads';\n import { format } from 'date-fns';\n import { Badge } from '@/components/ui/badge';\n-import { NoteSection } from '@/components/notes/note-section';\n+import { NoteSection } from '@/components/leads/note-section';\n \n interface LeadActivitiesProps {\n   leadId: string;\n }\n"
                 }
             ],
             "date": 1741890967632,

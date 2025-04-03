@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 6,
+            "activePatchIndex": 11,
             "patches": [
                 {
                     "date": 1741293593484,
@@ -32,6 +32,26 @@
                 {
                     "date": 1742501466870,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,8 +10,47 @@\n   value: string;\n   position: number;\n   createdAt: string;\n   lastActivity: string;\n+  \n+  // Address information\n+  address?: string;\n+  city?: string;\n+  state?: string;\n+  zipCode?: string;\n+  country?: string;\n+  \n+  // Lead source information\n+  source?: string;\n+  referredBy?: string;\n+  campaign?: string;\n+  \n+  // Tags for better organization\n+  tags?: string[];\n+  \n+  // Custom fields for flexible data collection\n+  customFields?: Array<{key: string, value: string}>;\n+  \n+  // Social media profiles\n+  socialProfiles?: {\n+    linkedin?: string;\n+    twitter?: string;\n+    facebook?: string;\n+    instagram?: string;\n+  };\n+  \n+  // Business details\n+  website?: string;\n+  industry?: string;\n+  companySize?: string;\n+  annualRevenue?: string;\n+  \n+  // Lead preferences and requirements\n+  budget?: string;\n+  timeline?: string;\n+  preferredContact?: string;\n+  keyRequirements?: string;\n+  \n   activities: {\n     calls: Activity[];\n     notes: Activity[];\n     emails: Activity[];\n"
+                },
+                {
+                    "date": 1743707415990,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -67,8 +67,9 @@\n   date: string;\n   status?: string;\n   duration?: string;\n   attachments?: string[];\n+  isPinned?: boolean;\n }\n \n // Empty array - no mock data\n export const leads: Lead[] = [];\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1743707469335,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -58,18 +58,18 @@\n     documents: Activity[];\n   };\n }\n \n-interface Activity {\n+export interface Activity {\n   id: number;\n   type: 'call' | 'note' | 'email' | 'meeting' | 'document';\n   title: string;\n   description: string;\n   date: string;\n   status?: string;\n   duration?: string;\n   attachments?: string[];\n-  isPinned?: boolean;\n+  isPinned?: boolean; // For pinning notes to top of list\n }\n \n // Empty array - no mock data\n export const leads: Lead[] = [];\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1743707935676,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -49,8 +49,11 @@\n   timeline?: string;\n   preferredContact?: string;\n   keyRequirements?: string;\n   \n+  // Pipeline tracking\n+  stageHistory?: Record<string, { enteredAt: string }>;\n+  \n   activities: {\n     calls: Activity[];\n     notes: Activity[];\n     emails: Activity[];\n"
+                },
+                {
+                    "date": 1743708129175,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -49,11 +49,8 @@\n   timeline?: string;\n   preferredContact?: string;\n   keyRequirements?: string;\n   \n-  // Pipeline tracking\n-  stageHistory?: Record<string, { enteredAt: string }>;\n-  \n   activities: {\n     calls: Activity[];\n     notes: Activity[];\n     emails: Activity[];\n"
+                },
+                {
+                    "date": 1743708210165,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,8 +11,12 @@\n   position: number;\n   createdAt: string;\n   lastActivity: string;\n   \n+  // Pipeline tracking\n+  statusUpdatedAt?: string; // When the lead last changed stages\n+  daysInStage?: Record<string, number>; // Days spent in each stage\n+  \n   // Address information\n   address?: string;\n   city?: string;\n   state?: string;\n"
                 }
             ],
             "date": 1741293593484,

@@ -6,9 +6,11 @@ import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LeadProfile } from '@/components/leads/lead-profile';
 import { LeadActivities } from '@/components/leads/lead-activities';
+import { PipelineProgress } from '@/components/leads/pipeline-progress';
 import { Phone, MessageSquare, Mail, Calendar, FileText } from 'lucide-react';
 import { getLeadById } from '@/lib/services/leads-service';
 import { Lead } from '@/data/leads';
+import { differenceInCalendarDays } from 'date-fns';
 
 export function LeadPageClient() {
   const params = useParams();
@@ -24,8 +26,12 @@ export function LeadPageClient() {
       try {
         setLoading(true);
         const leadData = await getLeadById(leadId);
-        setLead(leadData);
-        if (!leadData) {
+        
+        // Calculate days in each stage if not already present
+        const leadWithDays = calculateDaysInStage(leadData);
+        
+        setLead(leadWithDays);
+        if (!leadWithDays) {
           setError('Lead not found');
         }
       } catch (err) {
@@ -38,6 +44,51 @@ export function LeadPageClient() {
 
     fetchLead();
   }, [leadId]);
+  
+  // Calculate days spent in each pipeline stage
+  const calculateDaysInStage = (leadData: Lead | null): Lead | null => {
+    if (!leadData) return null;
+    
+    // If no statusUpdatedAt, use createdAt as a fallback
+    const statusDate = leadData.statusUpdatedAt || leadData.createdAt;
+    const currentStage = leadData.status;
+    
+    // Calculate days in current stage
+    const daysInCurrentStage = differenceInCalendarDays(
+      new Date(),
+      new Date(statusDate)
+    );
+    
+    // Update the daysInStage record
+    const daysInStage = leadData.daysInStage || {};
+    
+    return {
+      ...leadData,
+      daysInStage: {
+        ...daysInStage,
+        [currentStage]: Math.max(daysInCurrentStage, 0) // Ensure non-negative
+      }
+    };
+  };
+  
+  // Handle status updates from pipeline component
+  const handleStatusUpdate = (newStatus: string) => {
+    if (!lead) return;
+    
+    // Update the lead object with new status
+    const updatedLead = {
+      ...lead,
+      status: newStatus,
+      statusUpdatedAt: new Date().toISOString(),
+      // Reset days in new stage to 0
+      daysInStage: {
+        ...(lead.daysInStage || {}),
+        [newStatus]: 0
+      }
+    };
+    
+    setLead(updatedLead);
+  };
 
   if (loading) {
     return <div className="p-8 text-center">Loading lead data...</div>;
@@ -49,6 +100,11 @@ export function LeadPageClient() {
 
   return (
     <div className="min-h-screen bg-background p-8">
+      {/* Pipeline Progress Bar - Full Width */}
+      <div className="mb-8">
+        <PipelineProgress lead={lead} onStatusUpdate={handleStatusUpdate} />
+      </div>
+      
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

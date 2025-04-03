@@ -12,6 +12,10 @@ export interface Lead {
   createdAt: string;
   lastActivity: string;
   
+  // Pipeline tracking
+  statusUpdatedAt?: string; // When the lead last changed stages
+  daysInStage?: Record<string, number>; // Days spent in each stage
+  
   // Address information
   address?: string;
   city?: string;
@@ -59,7 +63,7 @@ export interface Lead {
   };
 }
 
-interface Activity {
+export interface Activity {
   id: number;
   type: 'call' | 'note' | 'email' | 'meeting' | 'document';
   title: string;
@@ -68,6 +72,7 @@ interface Activity {
   status?: string;
   duration?: string;
   attachments?: string[];
+  isPinned?: boolean; // For pinning notes to top of list
 }
 
 // Empty array - no mock data

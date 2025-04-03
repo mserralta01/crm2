@@ -11,6 +11,7 @@ import { getLeadById } from '@/lib/services/leads-service';
 import { Lead } from '@/data/leads';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import { NoteSection } from '@/components/leads/note-section';
 
 interface LeadActivitiesProps {
   leadId: string;
@@ -101,26 +102,8 @@ export function LeadActivities({ leadId }: LeadActivitiesProps) {
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold">Notes</h3>
           </div>
-          <div className="space-y-4">
-            <Textarea placeholder="Add a note..." className="min-h-[100px]" />
-            <Button className="w-full">Save Note</Button>
-            
-            <div className="space-y-4 mt-6">
-              {lead.activities.notes.length === 0 ? (
-                <div className="text-center p-4 text-muted-foreground">No notes found</div>
-              ) : (
-                lead.activities.notes.map(note => (
-                  <Card key={note.id} className="p-4 bg-muted/50">
-                    <h4 className="font-medium">{note.title}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">{note.description}</p>
-                    <div className="text-sm text-muted-foreground mt-2">
-                      {formatDate(note.date)}
-                    </div>
-                  </Card>
-                ))
-              )}
-            </div>
-          </div>
+          
+          <NoteSection leadId={leadId} notes={lead.activities.notes} />
         </Card>
       </TabsContent>
 

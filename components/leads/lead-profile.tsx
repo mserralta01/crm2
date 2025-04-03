@@ -50,6 +50,22 @@ import { useRouter } from 'next/navigation';
 import { formatPhoneNumber, isValidPhoneNumber } from '@/app/utils/formatters';
 import { updateLead, deleteLead } from '@/lib/services/leads-service';
 import { toast } from '@/hooks/use-toast';
+import { PhoneInput, CountryStateInput } from '@/components/leads/phone-input';
+
+// Define status color mapping
+const STATUS_COLORS = {
+  "New": "bg-blue-600",
+  "Contacted": "bg-yellow-600",
+  "Qualified": "bg-green-600",
+  "Negotiating": "bg-purple-600",
+  // Fallback for any other status
+  "default": "bg-slate-600"
+};
+
+// Function to get status color class
+function getStatusColorClass(status: string): string {
+  return STATUS_COLORS[status as keyof typeof STATUS_COLORS] || STATUS_COLORS.default;
+}
 
 interface LeadProfileProps {
   lead: Lead;
@@ -105,10 +121,10 @@ function EditableField({ value, onSave, label, placeholder, type = 'text' }: Edi
   };
 
   return (
-    <div className="group relative">
+    <div className="group w-full">
       {isEditing ? (
-        <div className="bg-muted/50 p-2 rounded-md">
-          {label && <Label className="mb-1 text-xs">{label}</Label>}
+        <div className="w-full rounded-md">
+          {label && <Label className="text-xs font-normal text-muted-foreground mb-1">{label}</Label>}
           <Input
             ref={inputRef}
             type={type}
@@ -117,35 +133,26 @@ function EditableField({ value, onSave, label, placeholder, type = 'text' }: Edi
             onBlur={handleSave}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className={`border-muted-foreground/20 ${isSaving ? 'opacity-70' : ''}`}
+            className={`border-input w-full h-8 ${isSaving ? 'opacity-70' : ''}`}
             disabled={isSaving}
           />
           {isSaving && (
-            <div className="text-xs text-muted-foreground mt-1">Saving...</div>
+            <div className="text-xs text-muted-foreground mt-0.5">Saving...</div>
           )}
         </div>
       ) : (
         <div 
-          className="flex items-center justify-between py-1 cursor-pointer hover:bg-muted/30 rounded px-2 -mx-2"
+          className="w-full cursor-pointer transition-colors"
           onClick={() => setIsEditing(true)}
         >
-          <div className="flex-1">
-            {label && <span className="text-xs text-muted-foreground block">{label}</span>}
-            <span className={value ? "" : "text-muted-foreground italic text-sm"}>
+          <div className="flex flex-col space-y-0.5">
+            {label && (
+              <span className="text-xs font-normal text-muted-foreground leading-tight">{label}</span>
+            )}
+            <span className={`${value ? "text-sm font-medium" : "text-muted-foreground italic text-sm"} truncate leading-snug`}>
               {value || placeholder || "Not specified"}
             </span>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsEditing(true);
-            }}
-          >
-            <Pencil className="h-3 w-3" />
-          </Button>
         </div>
       )}
     </div>
@@ -243,102 +250,136 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
     }
   };
 
-  return (
-    <Card className="p-6">
-      <div className="space-y-0"> {/* Reduced space between sections */}
-        {/* Basic Info - Not Collapsible */}
-        <div className="pb-4 border-b">
-          <div className="space-y-2">
-            <EditableField 
-              value={leadData.firstName} 
-              onSave={(value) => handleFieldUpdate('firstName', value)} 
-              label="First Name"
-              placeholder="Enter first name"
-            />
-            <EditableField 
-              value={leadData.lastName} 
-              onSave={(value) => handleFieldUpdate('lastName', value)} 
-              label="Last Name"
-              placeholder="Enter last name"
-            />
-            <EditableField 
-              value={leadData.company} 
-              onSave={(value) => handleFieldUpdate('company', value)} 
-              label="Company"
-              placeholder="Enter company name"
-            />
-          </div>
-        </div>
+  // Handle deal value update
+  const handleValueUpdate = () => {
+    const newValue = prompt("Enter new value:", leadData.value?.toString() || "0");
+    if (newValue !== null) {
+      handleFieldUpdate('value', newValue);
+    }
+  };
 
-        {/* Status and Value - Not Collapsible */}
-        <div className="py-4 border-b space-y-2">
-          <div className="flex justify-between items-center">
-            <Badge variant="secondary" className="px-4 py-1 text-sm">
-              {leadData.status}
-            </Badge>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-7" 
+  return (
+    <Card className="p-0 overflow-hidden">
+      {/* Company header with status color */}
+      <div className={`${getStatusColorClass(leadData.status)} px-6 py-4`}>
+        <div className="flex justify-between items-center">
+          <div className="w-full">
+            {/* Company Name - Editable */}
+            <div 
+              className="cursor-pointer group relative"
               onClick={() => {
-                const statuses = ["New", "Contacted", "Qualified", "Negotiating"];
-                const currentIndex = statuses.indexOf(leadData.status);
-                const nextStatus = statuses[(currentIndex + 1) % statuses.length];
-                handleFieldUpdate('status', nextStatus);
-              }}
-            >
-              <Pencil className="h-3 w-3 mr-1" /> Change
-            </Button>
-          </div>
-          <div className="flex justify-between items-center">
-            <div className="flex items-center text-xl font-bold text-primary">
-              <DollarSign className="w-5 h-5 mr-1" />
-              {leadData.value ? Number(leadData.value).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'N/A'}
-            </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-7" 
-              onClick={() => {
-                const newValue = prompt("Enter new value:", leadData.value?.toString() || "0");
+                const newValue = prompt("Enter new company name:", leadData.company);
                 if (newValue !== null) {
-                  handleFieldUpdate('value', newValue);
+                  handleFieldUpdate('company', newValue);
                 }
               }}
             >
-              <Pencil className="h-3 w-3 mr-1" /> Edit
-            </Button>
+              <h2 className="text-xl font-bold text-white truncate">{leadData.company || "Company Name"}</h2>
+              <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100">
+                <Button variant="ghost" size="icon" className="h-6 w-6 text-white/70 hover:text-white hover:bg-white/10">
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Status Badge */}
+          <Badge variant="outline" className="border-white/50 text-white px-3 py-1 ml-2">
+            {leadData.status}
+          </Badge>
+        </div>
+        
+        {/* Deal Value */}
+        <div className="flex items-center mt-1 text-white/90 cursor-pointer group relative" onClick={handleValueUpdate}>
+          <DollarSign className="w-4 h-4 mr-1" />
+          <span className="font-semibold">
+            {leadData.value ? Number(leadData.value).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'N/A'}
+          </span>
+          <Button variant="ghost" size="icon" className="h-5 w-5 ml-1 text-white/70 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100">
+            <Pencil className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+      
+      <div className="p-6">
+        {/* Lead Name */}
+        <div className="pb-4 mb-4 border-b">
+          <div className="flex items-end space-x-1">
+            <div className="flex-1">
+              <EditableField 
+                value={leadData.firstName} 
+                onSave={(value) => handleFieldUpdate('firstName', value)} 
+                label="First Name"
+                placeholder="Enter first name"
+              />
+            </div>
+            <div className="flex-1">
+              <EditableField 
+                value={leadData.lastName} 
+                onSave={(value) => handleFieldUpdate('lastName', value)} 
+                label="Last Name"
+                placeholder="Enter last name"
+              />
+            </div>
           </div>
         </div>
-
+        
         {/* Contact Info */}
-        <Collapsible className="border-b">
+        <Collapsible className="border-b" defaultOpen>
           <CollapsibleTrigger className="w-full flex justify-between items-center py-3 hover:bg-muted/50 rounded-md px-2 -mx-2">
             <h3 className="font-semibold">Contact Information</h3>
             <ChevronDown className="h-4 w-4 transition-transform duration-200 [&[data-state=open]]:rotate-180" />
           </CollapsibleTrigger>
-          <CollapsibleContent className="pt-2 pb-4 px-2 space-y-3">
-            <div className="space-y-3">
-              <EditableField 
-                value={leadData.email} 
-                onSave={(value) => handleFieldUpdate('email', value)} 
-                label="Email"
-                placeholder="Enter email address"
-                type="email"
-              />
-              <EditableField 
-                value={leadData.phone} 
-                onSave={(value) => handleFieldUpdate('phone', value)} 
-                label="Phone"
-                placeholder="Enter phone number"
-              />
-              <EditableField 
-                value={leadData.address || ''} 
-                onSave={(value) => handleFieldUpdate('address', value)} 
-                label="Address"
-                placeholder="Enter street address"
-              />
-              <div className="grid grid-cols-2 gap-2">
+          <CollapsibleContent className="py-3">
+            <div className="space-y-2 px-1">
+              {/* Email */}
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="bg-primary/10 p-1.5 rounded-md">
+                  <Mail className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <EditableField 
+                    value={leadData.email} 
+                    onSave={(value) => handleFieldUpdate('email', value)} 
+                    label="Email"
+                    placeholder="Enter email address"
+                    type="email"
+                  />
+                </div>
+              </div>
+              
+              {/* Phone */}
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="bg-primary/10 p-1.5 rounded-md">
+                  <Phone className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <PhoneInput
+                    value={leadData.phone || ''}
+                    onChange={(value) => handleFieldUpdate('phone', value)}
+                    label="Phone"
+                    placeholder="Enter phone number"
+                  />
+                </div>
+              </div>
+              
+              {/* Address */}
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="bg-primary/10 p-1.5 rounded-md">
+                  <MapPin className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <EditableField 
+                    value={leadData.address || ''} 
+                    onSave={(value) => handleFieldUpdate('address', value)} 
+                    label="Address"
+                    placeholder="Enter street address"
+                  />
+                </div>
+              </div>
+              
+              {/* City & Zip */}
+              <div className="grid grid-cols-2 gap-2 pl-8">
                 <EditableField 
                   value={leadData.city || ''} 
                   onSave={(value) => handleFieldUpdate('city', value)} 
@@ -352,18 +393,16 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
                   placeholder="Enter zip code"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <EditableField 
-                  value={leadData.state || ''} 
-                  onSave={(value) => handleFieldUpdate('state', value)} 
-                  label="State"
-                  placeholder="Enter state"
-                />
-                <EditableField 
-                  value={leadData.country || ''} 
-                  onSave={(value) => handleFieldUpdate('country', value)} 
-                  label="Country"
-                  placeholder="Enter country"
+              
+              {/* Country & State */}
+              <div className="pl-8">
+                <CountryStateInput
+                  countryValue={leadData.country || ''}
+                  stateValue={leadData.state || ''}
+                  onCountryChange={(value) => handleFieldUpdate('country', value)}
+                  onStateChange={(value) => handleFieldUpdate('state', value)}
+                  countryLabel="Country"
+                  stateLabel="State"
                 />
               </div>
             </div>
@@ -607,37 +646,35 @@ export function LeadProfile({ lead, isEditMode = false }: LeadProfileProps) {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Action Buttons - Not Collapsible */}
-        <div className="pt-6">
-          <div className="flex gap-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="flex-1" disabled={isDeleting}>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Lead
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the lead
-                    and all associated information.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? "Deleting..." : "Delete"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+        {/* Action Buttons - At bottom of card */}
+        <div className="pt-6 border-t mt-4">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="w-full" disabled={isDeleting}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Lead
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the lead
+                  and all associated information.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </Card>
